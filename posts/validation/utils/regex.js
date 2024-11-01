@@ -2,6 +2,27 @@ const urlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-
 
 const phoneRegex = /0[0-9]{1,2}\-?\s?[0-9]{3}\s?[0-9]{4}/;
 
-const emailRegex = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
+module.exports = { urlRegex, phoneRegex }
 
-module.exports = { urlRegex, phoneRegex, emailRegex }
+// const likeCard = async (cardId, userId) => {
+//     try {
+//         let card = await Card.findById(cardId);
+//         if (!card) {
+//             const error = new Error(
+//                 "A card with this ID cannot be found in the database"
+//             );
+//             error.status = 404;
+//             return createError("Mongoose", error);
+//         }
+//         if (card.likes.includes(userId)) {
+//             let newLikesArray = card.likes.filter((id) => id != userId);
+//             card.likes = newLikesArray;
+//         } else {
+//             card.likes.push(userId);
+//         }
+//         await card.save();
+//         return card;
+//     } catch (error) {
+//         return createError("Mongoose", error);
+//     }
+// };

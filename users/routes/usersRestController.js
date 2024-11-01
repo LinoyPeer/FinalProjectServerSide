@@ -1,12 +1,33 @@
 const express = require('express');
 const { handleError } = require('../../utils/handleErrors');
-const { getAllUsers, registerUser, getUserById, loginUser } = require('../models/usersAccessDataService');
+const { getAllUsers, registerUser, getUserById, loginUser, deleteUser, editUser } = require('../models/usersAccessDataService');
 const auth = require('../../auth/authService');
 
 const router = express.Router();
 
+router.post('/', async (req, res) => {
+    try {
+        const newUser = req.body;
+        const signin = await registerUser(newUser);
+        res.status(201).send(signin);
+    } catch (e) {
+        handleError(res, e.status || 400, e.message)
+    }
+});
 
-router.get('/', async (req, res) => {
+
+router.post('/login', async (req, res) => {
+    try {
+        let { email, password } = req.body;
+        const token = await loginUser(email, password);
+        res.send(token)
+    } catch (e) {
+        res.status(400).send(e.message);
+    }
+});
+
+
+router.get('/', auth, async (req, res) => {
     try {
         const allUsers = await getAllUsers();
         if (allUsers.length === 0) {
@@ -19,35 +40,54 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.post('/', async (req, res) => {
-    try {
-        const newUser = req.body;
-        const signin = await registerUser(newUser);
-        res.status(201).send(signin);
-    } catch (e) {
-        handleError(res, e.status || 400, e.message)
-    }
-});
 
-router.get('/:id', async (req, res) => {
+router.get('/:id', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        console.log(req.body);
         const currentUser = await getUserById(id);
         res.status(201).send(currentUser);
     } catch (e) {
-        handleError(res, e.status || 400, e.message)
+        handleError(res, e.status || 400, e.message);
     }
 });
 
-router.post('/login', async (req, res) => {
+router.delete('/:id', auth, async (req, res) => {
     try {
-        let { email, password } = req.body;
-        const token = await loginUser(email, password);
-        res.send(token)
+        const { id } = req.params;
+        const userInfo = req.user;
+
+        if (userInfo._id !== id && !userInfo.isAdmin) {
+            return handleError(
+                res,
+                403,
+                "Authorization Error: Only the user who created the business card or admin can delete it."
+            );
+        }
+        const currentUserToDelete = await deleteUser(id);
+        res.status(200).send(currentUserToDelete);
     } catch (e) {
-        res.status(400).send(e.message);
+        handleError(res, e.status || 400, e.message);
     }
 });
+
+router.put('/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userInfo = req.user;
+        const editedUser = req.body;
+
+        const fullUserInfo = await getUserById(id);
+        if (userInfo._id !== fullUserInfo.user_id && !userInfo.isAdmin) {
+            return res.status(403).send('Only Business user can edit their users and ADMIN');
+        }
+
+        const userToUpdate = await editUser(id, editedUser);
+        res.send(userToUpdate);
+    } catch (e) {
+        handleError(res, e.status || 400, e.message);
+    }
+});
+
+
 
 module.exports = router;

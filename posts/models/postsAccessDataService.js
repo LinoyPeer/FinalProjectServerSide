@@ -27,10 +27,10 @@ const getAllPosts = async () => {
     }
 };
 
-const getPostById = async (cardId) => {
+const getPostById = async (postId) => {
     if (db === "mongodb") {
         try {
-            let postById = await Post.findById(cardId);
+            let postById = await Post.findById(postId);
             return postById;
         } catch (e) {
             createError('Mongoose', e, 403);
@@ -38,10 +38,20 @@ const getPostById = async (cardId) => {
     }
 };
 
-const updatePost = async (cardId, editedPost) => {
+
+const getMyPosts = async (userId) => {
+    try {
+        let posts = await Post.find({ user_id: userId });
+        return posts;
+    } catch (error) {
+        return createError("Mongoose", error);
+    }
+};
+
+const updatePost = async (postId, editedPost) => {
     if (db === "mongodb") {
         try {
-            let post = await Post.findByIdAndUpdate(cardId, editedPost, { upsert: true, new: true });
+            let post = await Post.findByIdAndUpdate(postId, editedPost, { upsert: true, new: true });
             return post;
         } catch (e) {
             createError('Mongoose', e, 403);
@@ -55,26 +65,42 @@ const likePost = async (postId, userId) => {
         try {
             const postById = await Post.findById(postId);
             if (!postById) {
-                new Error('This id is not recognized by any post')
+                throw new Error('This id is not recognized by any post');
             }
             if (postById.likes.includes(userId)) {
-                let newLikesArray = card.likes.filter((id) => id !== userId);
-                card.likes = newLikesArray;
-
+                let newLikesArray = postById.likes.filter((id) => id !== userId);
+                postById.likes = newLikesArray;
             } else {
-                card.likes.push(userId)
+                postById.likes.push(userId);
             }
+
+            await postById.save();
+            return postById;
         } catch (e) {
+
+            console.error(e);
             createError('Mongoose', e, 403);
         }
     }
-}
+};
+
+const deletepost = async (postId) => {
+    try {
+        let post = await Post.findByIdAndDelete(postId);
+        return post;
+    } catch (error) {
+        return createError("Mongoose", error);
+    }
+};
+
 
 
 module.exports = {
     createPost,
     getAllPosts,
+    getMyPosts,
     getPostById,
     updatePost,
     likePost,
+    deletepost,
 }

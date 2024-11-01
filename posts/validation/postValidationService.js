@@ -3,9 +3,9 @@ const validatePostWithJoi = require("./Joi/validatePostWithJoi");
 
 const validator = config.get('VALIDATOR');
 
-const validatePost = (card) => {
+const validatePost = (post) => {
     if (validator === "joi") {
-        const { error, value } = validatePostWithJoi(card);
+        const { error, value } = validatePostWithJoi(post);
         if (error) return error.details[0].message;
         return value;
     }

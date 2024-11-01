@@ -13,7 +13,7 @@ const EMAIL = {
     match: RegExp(/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/),
     lowercase: true,
     trim: true,
-    unique: true,
+    unique: false,
 };
 
 const DEFAULT_VALIDATION = {
@@ -31,4 +31,4 @@ const PHONE = {
     match: RegExp(/0[0-9]{1,2}\-?\s?[0-9]{3}\s?[0-9]{4}/),
 };
 
-module.exports = { URL, EMAIL, DEFAULT_VALIDATION, PHONE };
+module.exports = { PHONE, URL, EMAIL, DEFAULT_VALIDATION };

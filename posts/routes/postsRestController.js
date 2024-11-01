@@ -1,6 +1,6 @@
 const express = require("express");
 const { handleError } = require("../../utils/handleErrors");
-const { createPost, getAllPosts, getPostById, updatePost, likePost } = require("../models/postsAccessDataService");
+const { createPost, getAllPosts, getPostById, updatePost, likePost, getMyPosts, deletepost } = require("../models/postsAccessDataService");
 const auth = require("../../auth/authService");
 const { normalizePost } = require("../helpers/normalizePost");
 const validatePost = require("../validation/postValidationService");
@@ -37,6 +37,21 @@ router.get('/', async (req, res) => {
     }
 });
 
+
+router.get("/my-posts", auth, async (req, res) => {
+    try {
+        const userInfo = req.user;
+        if (!userInfo.isBusiness) {
+            return handleError(res, 403, "Only business user can get my post");
+        }
+        let post = await getMyPosts(userInfo._id);
+        res.send(post);
+    } catch (error) {
+        handleError(res, error.status || 400, error.message);
+    }
+});
+
+
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -54,7 +69,6 @@ router.put('/:id', auth, async (req, res) => {
         const { id } = req.params;
         const userInfo = req.user;
         const fullPost = await getPostById(id);
-        console.log(fullPost);
         if (userInfo._id !== fullPost.user_id && !userInfo.isAdmin) {
             res.status(403).send('Only Business user can edit there posts')
         }
@@ -70,6 +84,7 @@ router.put('/:id', auth, async (req, res) => {
     }
 });
 
+
 router.patch("/:id", auth, async (req, res) => {
     try {
         const { id } = req.params;
@@ -81,6 +96,28 @@ router.patch("/:id", auth, async (req, res) => {
     }
 });
 
+
+router.delete("/:id", auth, async (req, res) => {
+    try {
+        const userInfo = req.user;
+        const { id } = req.params;
+        const fullPostFromDb = await getPostById(id);
+        if (
+            userInfo._id !== fullPostFromDb.user_id.toString() &&
+            !userInfo.isAdmin
+        ) {
+            return handleError(
+                res,
+                403,
+                "Authorization Error: Only the user who created the business Post or admin can delete this post"
+            );
+        }
+        let post = await deletepost(id);
+        res.send(post);
+    } catch (error) {
+        handleError(res, error.status || 400, error.message);
+    }
+});
 
 
 module.exports = router;

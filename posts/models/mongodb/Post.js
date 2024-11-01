@@ -1,17 +1,12 @@
 const mongoose = require('mongoose');
 const Image = require('../../../helpers/mongodb/Image');
 const Address = require('../../../helpers/mongodb/Address');
-const { PHONE, EMAIL, URL, DEFAULT_VALIDATION } = require('../../../helpers/mongodb/mongooseValidation.js');
+const { DEFAULT_VALIDATION } = require('../../../helpers/mongodb/mongooseValidation.js');
 
 const postSchema = new mongoose.Schema({
     title: DEFAULT_VALIDATION,
-    subtitle: DEFAULT_VALIDATION,
-    description: { ...DEFAULT_VALIDATION, maxLength: 1024 },
-    phone: PHONE,
-    email: EMAIL,
-    web: URL,
+    postStatus: { ...DEFAULT_VALIDATION, maxLength: 1024, minLength: 0, required: false },
     image: Image,
-    address: Address,
     bizNumber: {
         type: Number,
         required: true,
@@ -19,6 +14,7 @@ const postSchema = new mongoose.Schema({
         max: 9999999,
     },
     likes: [String],
+    comments: [String],
     createdAt: {
         type: Date,
         default: Date.now,

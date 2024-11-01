@@ -9,8 +9,12 @@ const connectToDb = require("./DB/dbServise");
 const app = express();
 const PORT = 8181;
 
-
 app.use(corsMiddleware);
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    next();
+});
 
 app.use(express.json());
 

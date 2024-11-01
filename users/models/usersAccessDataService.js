@@ -41,7 +41,8 @@ const loginUser = async (email, password) => {
         return token;
     } catch (error) {
         const e = new Error('an error occurred')
-        createError('Mongoose', e, 403);
+        createError('Mongoose', e, 403, error);
+        console.log(error);
     }
 };
 
@@ -54,10 +55,29 @@ const getUserById = async (id) => {
     }
 }
 
+const deleteUser = async (id) => {
+    try {
+        const userToDelete = await User.findByIdAndDelete(id)
+        return userToDelete;
+    } catch (e) {
+        createError('Mongoose', e, 403);
+    }
+}
+
+const editUser = async (userId, editedUser) => {
+    try {
+        let postToEdit = await User.findByIdAndUpdate(userId, editedUser, { upsert: true, new: true });
+        return postToEdit;
+    } catch (e) {
+        createError('Mongoose', e, 403);
+    }
+}
 
 module.exports = {
     getAllUsers,
     registerUser,
     getUserById,
     loginUser,
+    deleteUser,
+    editUser,
 };

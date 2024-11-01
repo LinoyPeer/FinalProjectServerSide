@@ -12,9 +12,9 @@ const isBizNumberExists = async (bizNumber) => {
 };
 
 const generateBizNumber = async () => {
-    let cardsCount = await Post.countDocuments();
+    let postsCount = await Post.countDocuments();
 
-    if (cardsCount === 9_000_000) {
+    if (postsCount === 9_000_000) {
         const e = new Error('an error occurred')
         createError('DB', e, 403, 'You reached to the maximum posts count in your system');
         // throw new Error("You reached to the maximum posts count in your system");
