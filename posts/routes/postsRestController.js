@@ -1,9 +1,13 @@
 const express = require("express");
 const { handleError } = require("../../utils/handleErrors");
-const { createPost, getAllPosts, getPostById, updatePost, likePost, getMyPosts, deletepost } = require("../models/postsAccessDataService");
+const { createPost, getAllPosts, getPostById, updatePost, likePost, getMyPosts, deletepost, updatePostBizNumber } = require("../models/postsAccessDataService");
 const auth = require("../../auth/authService");
 const { normalizePost } = require("../helpers/normalizePost");
 const validatePost = require("../validation/postValidationService");
+const { jwtDecode } = require("jwt-decode");
+const { verifyToken } = require("../../auth/providers/jwt");
+const Post = require("../models/mongodb/Post");
+const { isBizNumberExists } = require("../helpers/generateBizNumber");
 
 const router = express.Router();
 
@@ -84,13 +88,30 @@ router.put('/:id', auth, async (req, res) => {
     }
 });
 
-
 router.patch("/:id", auth, async (req, res) => {
     try {
         const { id } = req.params;
         const userId = req.user._id;
-        let postWIthLikesChange = await likePost(id, userId);
-        res.send(postWIthLikesChange);
+        const newBizNumber = req.body.newBizNumber;
+
+        if (newBizNumber === undefined) {
+            let post = await likePost(id, userId);
+            return res.send(post);
+        }
+
+        const userInfo = req.user;
+        if (!userInfo.isAdmin) {
+            throw new Error('ONLY ADMIN user can get a new bizNumber');
+        }
+        const bizNumberExists = await isBizNumberExists(newBizNumber);
+        if (bizNumberExists) {
+            return res.status(400).json({ message: "Biz number is already in use." });
+        }
+        const updatedBusiness = await updatePostBizNumber(id, newBizNumber);
+        if (!updatedBusiness) {
+            return res.status(404).json({ message: "Business not found." });
+        }
+        res.send(updatedBusiness);
     } catch (error) {
         handleError(res, error.status || 400, error.message);
     }

@@ -1,6 +1,7 @@
 const config = require('config');
 const { createError } = require("../../utils/handleErrors");
 const Post = require("./mongodb/Post");
+const { jwtDecode } = require('jwt-decode');
 
 const db = config.get('DB');
 
@@ -60,27 +61,39 @@ const updatePost = async (postId, editedPost) => {
 };
 
 
+
 const likePost = async (postId, userId) => {
-    if (db === "mongodb") {
-        try {
-            const postById = await Post.findById(postId);
-            if (!postById) {
-                throw new Error('This id is not recognized by any post');
-            }
-            if (postById.likes.includes(userId)) {
-                let newLikesArray = postById.likes.filter((id) => id !== userId);
-                postById.likes = newLikesArray;
-            } else {
-                postById.likes.push(userId);
-            }
-
-            await postById.save();
-            return postById;
-        } catch (e) {
-
-            console.error(e);
-            createError('Mongoose', e, 403);
+    try {
+        let post = await Post.findById(postId);
+        if (!post) {
+            const error = new Error(
+                "A post with this ID cannot be found in the database"
+            );
+            return createError("Mongoose", error);
         }
+        if (post.likes.includes(userId)) {
+            let newLikesArray = post.likes.filter((id) => id != userId);
+            post.likes = newLikesArray;
+        } else {
+            post.likes.push(userId);
+        }
+        await post.save();
+        return post;
+    } catch (error) {
+        return createError("Mongoose", error);
+    }
+};
+
+const updatePostBizNumber = async (id, newBizNumber) => {
+    try {
+        const updatedPost = await Post.findByIdAndUpdate(
+            id,
+            { bizNumber: newBizNumber },
+            { new: true }
+        );
+        return updatedPost;
+    } catch (error) {
+        createError('Mongoose', error, 400);
     }
 };
 
@@ -103,4 +116,5 @@ module.exports = {
     updatePost,
     likePost,
     deletepost,
+    updatePostBizNumber,
 }

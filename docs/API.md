@@ -36,16 +36,20 @@
 | createdAt||`date`| Automatically generated at creation|
 | user_id||`objectId`|References the user who created the post, required|
 
+---
+
 ## Users API
 
-Base endpoint: `/users`
+**Base endpoint:** `/users`
 
 ### 1. **GET All Users**
 
 - **Endpoint:** `/users`
 - **Method:** `GET`
+- **Authentication:** Required (Admin only)
 - **Response:**
-  - Returns an array of User objects.
+  - Returns an array of User objects if the requester has Admin privileges.
+  - Returns a `403 Forbidden` status if the requester is not an Admin.
 
 ### 2. **POST New User**
 
@@ -60,6 +64,7 @@ Base endpoint: `/users`
 
 - **Endpoint:** `/users/:id`
 - **Method:** `GET`
+- **Authentication:** Required
 - **Response:**
   - Returns a single user object corresponding to the specified `id`.
 
@@ -104,7 +109,7 @@ Base endpoint: `/users`
 
 ## Posts API
 
-Base endpoint: `/posts`
+**Base endpoint:** `/posts`
 
 ### 1. **POST Create Post**
 
@@ -150,7 +155,7 @@ Base endpoint: `/posts`
 
 ### 6. **PATCH Like Post**
 
-- **Endpoint:** `/posts/:id/like`
+- **Endpoint:** `/posts/:id`
 - **Method:** `PATCH`
 - **Authentication:** Required
 - **Response:**

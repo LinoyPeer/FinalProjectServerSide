@@ -24,4 +24,30 @@ const auth = (req, res, next) => {
         }
     }
 }
+
+const authAdmin = () => (req, res, next) => {
+    if (tokenGenerator === "jwt") {
+        try {
+            const tokenFromClient = req.header("x-auth-token");
+            if (!tokenFromClient) {
+                const e = new Error('an error occurred')
+                createError('Jwt', e, 403, ', Please Login');
+            }
+            const userInfo = verifyToken(tokenFromClient);
+            if (!userInfo.isAdmin) {
+                createError('Jwt', e, 403, ', Only ADMIN');
+            }
+            if (!userInfo) {
+                const e = new Error('an error occurred')
+                createError('Jwt', e, 403, ', Unauthorize user');
+            }
+            req.user = userInfo;
+            return next();
+        } catch (error) {
+            return res.status(500).send(error.message);
+        }
+    }
+}
+
+
 module.exports = auth;

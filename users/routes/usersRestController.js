@@ -15,20 +15,23 @@ router.post('/', async (req, res) => {
     }
 });
 
-
 router.post('/login', async (req, res) => {
     try {
         let { email, password } = req.body;
         const token = await loginUser(email, password);
-        res.send(token)
+        res.send(token);
     } catch (e) {
-        res.status(400).send(e.message);
+        res.status(403).send(e.message);
     }
 });
 
 
 router.get('/', auth, async (req, res) => {
     try {
+        const userInfo = req.user;
+        if (!userInfo || !userInfo.isAdmin) {
+            return res.status(403).send('Access denied. Admins only.');
+        }
         const allUsers = await getAllUsers();
         if (allUsers.length === 0) {
             console.log('There is no users yet');
@@ -39,7 +42,6 @@ router.get('/', auth, async (req, res) => {
         handleError(res, e.status || 400, e.message);
     }
 });
-
 
 router.get('/:id', auth, async (req, res) => {
     try {
@@ -80,7 +82,6 @@ router.put('/:id', auth, async (req, res) => {
         if (userInfo._id !== fullUserInfo.user_id && !userInfo.isAdmin) {
             return res.status(403).send('Only Business user can edit their users and ADMIN');
         }
-
         const userToUpdate = await editUser(id, editedUser);
         res.send(userToUpdate);
     } catch (e) {

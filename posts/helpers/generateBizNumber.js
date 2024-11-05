@@ -26,4 +26,4 @@ const generateBizNumber = async () => {
 };
 
 
-module.exports = { generateBizNumber }
+module.exports = { generateBizNumber, isBizNumberExists }

@@ -24,27 +24,37 @@ const registerUser = async (newUser) => {
     }
 }
 
+
 const loginUser = async (email, password) => {
     try {
         const userFromDb = await User.findOne({ email });
         if (!userFromDb) {
-            const e = new Error('an error occurred')
-            createError('DB', e, 403, "Invalid email or password");
-            // throw new Error("Invalid email or password");
+            throw new Error("Invalid email or password");
+        }
+        if (userFromDb.lockUntil && userFromDb.lockUntil > Date.now()) {
+            throw new Error("Account is temporarily locked. Try again later.");
         }
         if (!comparePasswords(password, userFromDb.password)) {
-            const e = new Error('an error occurred')
-            createError('DB', e, 403, "Invalid email or password");
-            // throw new Error("Invalid email or password");
+            userFromDb.failedLoginAttempts += 1;
+            if (userFromDb.failedLoginAttempts >= 3) {
+                userFromDb.lockUntil = Date.now() + 24 * 60 * 60 * 1000;
+                userFromDb.failedLoginAttempts = 0;
+            }
+
+            await userFromDb.save();
+            throw new Error("Invalid email or password");
         }
+        userFromDb.failedLoginAttempts = 0;
+        userFromDb.lockUntil = null;
+        await userFromDb.save();
+
         const token = generateAuthToken(userFromDb);
         return token;
     } catch (error) {
-        const e = new Error('an error occurred')
-        createError('Mongoose', e, 403, error);
-        console.log(error);
+        createError('DB', error, 403, error.message);
     }
 };
+
 
 const getUserById = async (id) => {
     try {

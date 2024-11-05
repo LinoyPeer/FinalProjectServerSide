@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const { phoneRegex, urlRegex } = require("../utils/regex");
+const { urlRegex } = require("../utils/regex");
 const errorMessages = require("../utils/errorMessages");
 
 const validatePostWithJoi = (post) => {
@@ -25,9 +25,9 @@ const validatePostWithJoi = (post) => {
                 'string.max': errorMessages.image.alt.max,
             }),
         }).required(),
-        likes: Joi.array().items(Joi.string()),  // הוספתי את שדה likes
-        comments: Joi.array().items(Joi.string().min(2).max(256)).optional(),  // הוספתי את שדה comments
-        user_id: Joi.string().required()  // שדה חובה
+        likes: Joi.array().items(Joi.string()),
+        comments: Joi.array().items(Joi.string().min(2).max(256)).optional(),
+        user_id: Joi.string().required()
     });
 
     return schema.validate(post);
