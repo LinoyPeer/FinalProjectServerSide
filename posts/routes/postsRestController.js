@@ -4,9 +4,6 @@ const { createPost, getAllPosts, getPostById, updatePost, likePost, getMyPosts, 
 const auth = require("../../auth/authService");
 const { normalizePost } = require("../helpers/normalizePost");
 const validatePost = require("../validation/postValidationService");
-const { jwtDecode } = require("jwt-decode");
-const { verifyToken } = require("../../auth/providers/jwt");
-const Post = require("../models/mongodb/Post");
 const { isBizNumberExists } = require("../helpers/generateBizNumber");
 
 const router = express.Router();
@@ -68,20 +65,26 @@ router.put('/:id', auth, async (req, res) => {
         const { id } = req.params;
         const userInfo = req.user;
         const fullPost = await getPostById(id);
-        if (userInfo._id !== fullPost.user_id && !userInfo.isAdmin) {
-            res.status(403).send('Only Business user can edit there posts')
+
+        // בדיקה אם המשתמש הוא יוצר הפוסט או אדמין
+        if (userInfo._id !== fullPost.user_id.toString() && !userInfo.isAdmin) {
+            return res.status(403).send('Only the post creator or an admin can edit this post');
         }
+
         const validatedPost = validatePost(req.body);
         if (typeof validatedPost === "string") {
-            handleError(res, 400, "validation error: " + validatedPost);
+            return handleError(res, 400, "Validation error: " + validatedPost);
         }
-        let post = await normalizePost(validatedPost, userInfo._id)
-        post = await updatePost(id, validatedPost);
-        res.send(post);
+
+        const normalizedPost = await normalizePost(validatedPost, userInfo._id);
+        const updatedPost = await updatePost(id, normalizedPost);
+
+        res.send(updatedPost);
     } catch (error) {
         handleError(res, error.status || 400, error.message);
     }
 });
+
 
 router.patch("/:id", auth, async (req, res) => {
     try {
@@ -116,6 +119,13 @@ router.delete("/:id", auth, async (req, res) => {
         const userInfo = req.user;
         const { id } = req.params;
         const fullPostFromDb = await getPostById(id);
+        if (!fullPostFromDb) {
+            return handleError(
+                res,
+                404,
+                "Post not found: No post exists with the provided ID"
+            );
+        }
         if (
             userInfo._id !== fullPostFromDb.user_id.toString() &&
             !userInfo.isAdmin
@@ -123,10 +133,11 @@ router.delete("/:id", auth, async (req, res) => {
             return handleError(
                 res,
                 403,
-                "Authorization Error: Only the user who created the business Post or admin can delete this post"
+                "Authorization Error: Only the user who created the post or an admin can delete this post"
             );
         }
-        let post = await deletepost(id);
+
+        const post = await deletepost(id);
         res.send(post);
     } catch (error) {
         handleError(res, error.status || 400, error.message);
@@ -138,12 +149,21 @@ router.post('/:id/comments', async (req, res) => {
     const { comment } = req.body;
 
     try {
+        const fullPostFromDb = await getPostById(id);
+        if (!fullPostFromDb) {
+            return res.status(404).send({
+                message: "Post not found: No post exists with the provided ID or it is no longer available"
+            });
+        }
         const result = await createComment(id, comment);
         res.status(200).send(result);
     } catch (error) {
-        res.status(400).send({ message: error.message || "An unknown error occurred" });
+        res.status(400).send({
+            message: error.message || "An unknown error occurred"
+        });
     }
 });
+
 
 
 
