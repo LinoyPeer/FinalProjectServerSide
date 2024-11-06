@@ -10,6 +10,7 @@ const connectToAtlasDb = async () => {
         console.log('connected to mongodb atlas cloud');
     } catch (e) {
         console.log('couldn\'t connect to mongodb atlas', e);
+        throw new Error('couldn\'t connect to mongodb atlas', e);
     }
 }
 

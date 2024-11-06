@@ -156,13 +156,13 @@
 
 ### 6. **PATCH Change User Status**
 
-- **Endpoint:** `/users/:id/status`
+- **Endpoint:** `users/:id/status`
 - **Method:** `PATCH`
 - **Authentication:** Required (Admin only)
 - **Request Body:**
-  - Fields: `isAdmin`, `isBusiness`.
+  - Fields: `isBusiness`.
 - **Response:**
-  - Returns the updated user status.
+  - Returns the updated user status (business or guest).
 
 ### 7. **DELETE User**
 

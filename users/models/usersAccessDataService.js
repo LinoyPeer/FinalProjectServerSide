@@ -82,15 +82,15 @@ const editUser = async (userId, editedUser) => {
         createError('Mongoose', e, 403);
     }
 }
-
-const changeUserStatus = async (id, status) => {
+const changeUserStatus = async (id, statusUpdates) => {
     try {
-        const user = await User.findByIdAndUpdate(id, { status }, { new: true });
+        const user = await User.findByIdAndUpdate(id, statusUpdates, { new: true });
         return user;
     } catch (e) {
         createError('Mongoose', e, 403);
     }
 };
+
 
 module.exports = {
     getAllUsers,

@@ -41,30 +41,13 @@ router.get('/', async (req, res) => {
     }
 });
 
-// router.get("/my-posts", auth, async (req, res) => {
-//     try {
-//         const userInfo = req.user;
-//         if (!userInfo) {
-//             return handleError(res, 403, "Unauthorized");
-//         }
-//         let posts = await getMyPosts(userInfo._id);
-//         res.send(posts);
-//     } catch (error) {
-//         handleError(res, error.status || 400, error.message);
-//     }
-// });
-
 router.get("/my-posts", auth, async (req, res) => {
     try {
         const userInfo = req.user;
-        console.log("User Info:", userInfo); // הדפסת המידע על המשתמש
-
         let posts = await getMyPosts(userInfo._id);
-        console.log("Posts:", posts); // הדפסת הפוסטים שהתקבלו
-
         res.send(posts);
     } catch (error) {
-        console.error("Error fetching posts:", error); // הדפסת שגיאות
+        console.error("Error fetching posts:", error);
         handleError(res, error.status || 400, error.message);
     }
 });
@@ -73,8 +56,6 @@ router.get("/my-posts", auth, async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        console.log("Post ID:", id);
-
         let currentPost = await getPostById(id);
         res.send(currentPost);
     } catch (error) {

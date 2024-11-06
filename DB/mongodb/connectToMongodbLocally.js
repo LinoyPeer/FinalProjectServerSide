@@ -4,8 +4,10 @@ const connectToLocalDb = async () => {
     try {
         await mongoose.connect("mongodb://127.0.0.1:27017/finalProjectCollection");
         console.log("Connected to MongoDB locally");
-    } catch (error) {
-        console.error("Could not connect to MongoDB", error);
+    } catch (e) {
+        console.error("Could not connect to MongoDB", e);
+        throw new Error("Could not connect to MongoDB", e);
+
     }
 };
 

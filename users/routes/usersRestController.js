@@ -34,7 +34,6 @@ router.get('/', auth, async (req, res) => {
         }
         const allUsers = await getAllUsers();
         if (allUsers.length === 0) {
-            console.log('There is no users yet');
             return res.status(200).send('There is no users yet');
         }
         res.status(200).send(allUsers);
@@ -89,17 +88,16 @@ router.put('/:id', auth, async (req, res) => {
     }
 });
 
-router.patch('/:id', auth, async (req, res) => {
+router.patch('/:id/status', auth, async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body;
-        const updatedUser = await changeUserStatus(id, status);
+        const { isBusiness } = req.body;
+        const updatedUser = await changeUserStatus(id, { isBusiness });
         res.status(200).send(updatedUser);
     } catch (e) {
         handleError(res, e.status || 400, e.message);
     }
 });
-
 
 
 

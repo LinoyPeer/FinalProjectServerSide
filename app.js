@@ -22,11 +22,6 @@ app.use(morganLogger);
 
 app.use(express.static('./public'))
 
-// app.use((req, res, next) => {
-//     console.log(linoy);
-//     next("this is an error");
-// });
-
 app.use(router)
 
 

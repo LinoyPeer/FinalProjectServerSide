@@ -17,7 +17,6 @@ const generateBizNumber = async () => {
     if (postsCount === 9_000_000) {
         const e = new Error('an error occurred')
         createError('DB', e, 403, 'You reached to the maximum posts count in your system');
-        // throw new Error("You reached to the maximum posts count in your system");
     }
     do {
         random = _.random(1_000_000, 9_999_909);
