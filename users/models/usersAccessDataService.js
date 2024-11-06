@@ -83,6 +83,15 @@ const editUser = async (userId, editedUser) => {
     }
 }
 
+const changeUserStatus = async (id, status) => {
+    try {
+        const user = await User.findByIdAndUpdate(id, { status }, { new: true });
+        return user;
+    } catch (e) {
+        createError('Mongoose', e, 403);
+    }
+};
+
 module.exports = {
     getAllUsers,
     registerUser,
@@ -90,4 +99,5 @@ module.exports = {
     loginUser,
     deleteUser,
     editUser,
+    changeUserStatus,
 };

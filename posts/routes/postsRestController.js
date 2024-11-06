@@ -1,6 +1,6 @@
 const express = require("express");
 const { handleError } = require("../../utils/handleErrors");
-const { createPost, getAllPosts, getPostById, updatePost, likePost, getMyPosts, deletepost, updatePostBizNumber } = require("../models/postsAccessDataService");
+const { createPost, getAllPosts, getPostById, updatePost, likePost, getMyPosts, deletepost, updatePostBizNumber, createComment } = require("../models/postsAccessDataService");
 const auth = require("../../auth/authService");
 const { normalizePost } = require("../helpers/normalizePost");
 const validatePost = require("../validation/postValidationService");
@@ -41,16 +41,30 @@ router.get('/', async (req, res) => {
     }
 });
 
+// router.get("/my-posts", auth, async (req, res) => {
+//     try {
+//         const userInfo = req.user;
+//         if (!userInfo) {
+//             return handleError(res, 403, "Unauthorized");
+//         }
+//         let posts = await getMyPosts(userInfo._id);
+//         res.send(posts);
+//     } catch (error) {
+//         handleError(res, error.status || 400, error.message);
+//     }
+// });
 
 router.get("/my-posts", auth, async (req, res) => {
     try {
         const userInfo = req.user;
-        if (!userInfo.isBusiness) {
-            return handleError(res, 403, "Only business user can get my post");
-        }
-        let post = await getMyPosts(userInfo._id);
-        res.send(post);
+        console.log("User Info:", userInfo); // הדפסת המידע על המשתמש
+
+        let posts = await getMyPosts(userInfo._id);
+        console.log("Posts:", posts); // הדפסת הפוסטים שהתקבלו
+
+        res.send(posts);
     } catch (error) {
+        console.error("Error fetching posts:", error); // הדפסת שגיאות
         handleError(res, error.status || 400, error.message);
     }
 });
@@ -93,12 +107,10 @@ router.patch("/:id", auth, async (req, res) => {
         const { id } = req.params;
         const userId = req.user._id;
         const newBizNumber = req.body.newBizNumber;
-
         if (newBizNumber === undefined) {
             let post = await likePost(id, userId);
             return res.send(post);
         }
-
         const userInfo = req.user;
         if (!userInfo.isAdmin) {
             throw new Error('ONLY ADMIN user can get a new bizNumber');
@@ -139,6 +151,19 @@ router.delete("/:id", auth, async (req, res) => {
         handleError(res, error.status || 400, error.message);
     }
 });
+
+router.post('/:id/comments', async (req, res) => {
+    const { id } = req.params;
+    const { comment } = req.body;
+
+    try {
+        const result = await createComment(id, comment);
+        res.status(200).send(result);
+    } catch (error) {
+        res.status(400).send({ message: error.message || "An unknown error occurred" });
+    }
+});
+
 
 
 module.exports = router;

@@ -106,6 +106,20 @@ const deletepost = async (postId) => {
     }
 };
 
+const createComment = async (postId, comment) => {
+    try {
+        let post = await Post.findById(postId);
+        if (!post) {
+            throw new Error("A post with this ID cannot be found in the database");
+        }
+        post.comments.push(comment);
+        await post.save();
+        return post;
+    } catch (e) {
+        return createError("Mongoose", e.message || "An unknown error occurred", 400);
+    }
+};
+
 
 
 module.exports = {
@@ -117,4 +131,5 @@ module.exports = {
     likePost,
     deletepost,
     updatePostBizNumber,
+    createComment,
 }

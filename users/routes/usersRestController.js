@@ -1,6 +1,6 @@
 const express = require('express');
 const { handleError } = require('../../utils/handleErrors');
-const { getAllUsers, registerUser, getUserById, loginUser, deleteUser, editUser } = require('../models/usersAccessDataService');
+const { getAllUsers, registerUser, getUserById, loginUser, deleteUser, editUser, changeUserStatus } = require('../models/usersAccessDataService');
 const auth = require('../../auth/authService');
 
 const router = express.Router();
@@ -88,6 +88,19 @@ router.put('/:id', auth, async (req, res) => {
         handleError(res, e.status || 400, e.message);
     }
 });
+
+router.patch('/:id', auth, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const updatedUser = await changeUserStatus(id, status);
+        res.status(200).send(updatedUser);
+    } catch (e) {
+        handleError(res, e.status || 400, e.message);
+    }
+});
+
+
 
 
 
