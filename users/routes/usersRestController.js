@@ -65,11 +65,11 @@ router.delete('/:id', auth, async (req, res) => {
         const { id } = req.params;
         const userInfo = req.user;
 
-        if (userInfo._id !== id && !userInfo.isAdmin) {
+        if (!userInfo.isAdmin) {
             return handleError(
                 res,
                 403,
-                "Authorization Error: Only the user who created the business card or admin can delete it."
+                "Authorization Error: Only admin can delete users."
             );
         }
         const currentUserToDelete = await deleteUser(id);
@@ -84,10 +84,8 @@ router.put('/:id', auth, async (req, res) => {
         const { id } = req.params;
         const userInfo = req.user;
         const editedUser = req.body;
-
-        const fullUserInfo = await getUserById(id);
-        if (userInfo._id !== fullUserInfo.user_id && !userInfo.isAdmin) {
-            return res.status(403).send('Only Business user can edit their users and ADMIN');
+        if (userInfo._id !== id && !userInfo.isAdmin) {
+            return res.status(403).send('You do not have permission to edit this user.');
         }
         const userToUpdate = await editUser(id, editedUser);
         res.send(userToUpdate);
