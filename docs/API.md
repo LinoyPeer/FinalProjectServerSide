@@ -85,7 +85,7 @@
         "zip": "12345"
     },
     "isAdmin": false,
-    "isBusiness": false
+    "isBusiness": true
 }
 ```
 
@@ -105,6 +105,7 @@
   - Fields: `email`, `password`.
 - **Response:**
   - Returns a token if the login is successful.
+  - Returns an error if the login is unsuccessful.
 #### Example Request Body:
 ```json
 {
@@ -122,21 +123,20 @@
 - **Response:**
   - Returns the updated user object.
 
+#### Example Request Body:
 ```json
 {
         "name": {
             "first": "linoy edit user",
             "middle": "pe'er",
             "last": "example",
-            "_id": "670e63bdbee8c2f3831a5a3d"
         },
         "phone": "050-1234567",
         "email": "linoy.peer@example.com",
-        "password": "$2a$10$cfYRoE1LixspWoptbaedlOeQ/G/zF8C.CA7XhMI7IkVMeg5HAT.mS",
+        "password": "$2a$10$S",
         "image": {
             "url": "https://via.placeholder.com/150",
             "alt": "profile image",
-            "_id": "670e63bdbee8c2f3831a5a3e"
         },
         "address": {
             "state": "Tel Aviv",
@@ -145,12 +145,7 @@
             "street": "shinkin",
             "houseNumber": 3,
             "zip": 12345,
-            "_id": "670e63bdbee8c2f3831a5a3f"
         },
-        "isAdmin": false,
-        "isBusiness": false,
-        "createdAt": "2024-10-15T12:44:45.917Z",
-        "__v": 0
     }
 ```
 
@@ -187,6 +182,8 @@
   - Fields: `title`, `description`, `image`, `bizNumber`, `likes`, `comments`.
 - **Response:**
   - Returns the created post object.
+
+  #### Example Request Body:
 ```json
 {
   "title": "create new post Garden Flowers",
@@ -230,7 +227,7 @@
 - **Response:**
   - Returns the updated post object.
 
-### Example Request
+#### Example Request Body:
 ```json
 {
   "title": "Delightful Garden Flowers",
@@ -269,6 +266,8 @@
   - `bizNumber`: 7-digit number (between 1000000 and 9999999)
 - **Response:**
   - Returns the updated post object with the new `bizNumber`.
+
+  #### Example Request Body:
 ```json
 {
     "newBizNumber":4584122
@@ -291,7 +290,7 @@ Adds a new comment to the specified post. Each comment is added as a string with
 
 - **Request Body**
 - `comment` (String): The comment text to be added.
-### Example Request
+#### Example Request Body:
 ```json
 {
     "comment": "This is a new comment"
@@ -312,9 +311,4 @@ Authentication: Actions that require permissions will be secured with JWT for au
 
 ### Headers:
 ```plaintext
-x-auth-token (admin): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzI2MmRkYmU1MTlkZWVhOWM4OWM4ZTAiLCJpc0FkbWluIjpmYWxzZSwiaXNCdXNpbmVzcyI6dHJ1ZSwiaWF0IjoxNzMwOTA4NDQ3fQ.StOfKt95oF4-FTaO8SBfMCAt9Ud_5vTAnSpRshsBWUM
-
-x-auth-token (business): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzJiYjkyOWRmMTc1M2VjMjYyNTI3OTMiLCJpc0FkbWluIjpmYWxzZSwiaXNCdXNpbmVzcyI6ZmFsc2UsImlhdCI6MTczMDkxODcwMX0.r_dXTrIUB1XzNw0ERfNbxf-maq8pPr-PjLpYcoW4ijA
-
-x-auth-token (guest): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NzJiYjhlZmRmMTc1M2VjMjYyNTI3OGMiLCJpc0FkbWluIjpmYWxzZSwiaXNCdXNpbmVzcyI6ZmFsc2UsImlhdCI6MTczMDkxODY1Mn0.GedCvlfQzd-jQSOuJptK3gMb3qsQjePifPvkFRBrB7w
----
+x-auth-token : token of logged user

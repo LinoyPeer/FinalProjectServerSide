@@ -11,8 +11,8 @@ const router = express.Router();
 router.post('/', auth, async (req, res) => {
     try {
         const userInfo = req.user;
-        if (!userInfo.isBusiness) {
-            return res.status(403).send('only business user can create a post')
+        if (!userInfo.isBusiness && !userInfo.isAdmin) {
+            return res.status(403).send('only business OR admin user can create a post')
         }
         const validatedPost = validatePost(req.body);
         if (typeof validatedPost === "string") {
@@ -65,20 +65,15 @@ router.put('/:id', auth, async (req, res) => {
         const { id } = req.params;
         const userInfo = req.user;
         const fullPost = await getPostById(id);
-
-        // בדיקה אם המשתמש הוא יוצר הפוסט או אדמין
         if (userInfo._id !== fullPost.user_id.toString() && !userInfo.isAdmin) {
             return res.status(403).send('Only the post creator or an admin can edit this post');
         }
-
         const validatedPost = validatePost(req.body);
         if (typeof validatedPost === "string") {
             return handleError(res, 400, "Validation error: " + validatedPost);
         }
-
         const normalizedPost = await normalizePost(validatedPost, userInfo._id);
         const updatedPost = await updatePost(id, normalizedPost);
-
         res.send(updatedPost);
     } catch (error) {
         handleError(res, error.status || 400, error.message);
@@ -144,7 +139,7 @@ router.delete("/:id", auth, async (req, res) => {
     }
 });
 
-router.post('/:id/comments', async (req, res) => {
+router.post('/:id/comments', auth, async (req, res) => {
     const { id } = req.params;
     const { comment } = req.body;
 
