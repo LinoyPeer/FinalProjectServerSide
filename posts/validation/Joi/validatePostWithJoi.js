@@ -27,7 +27,7 @@ const validatePostWithJoi = (post) => {
         }).required(),
         likes: Joi.array().items(Joi.string()),
         comments: Joi.array().items(Joi.string().min(2).max(256)).optional(),
-        user_id: Joi.string().required()
+        user_id: Joi.string()
     });
 
     return schema.validate(post);

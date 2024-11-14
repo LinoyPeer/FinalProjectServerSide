@@ -41,6 +41,7 @@ router.get('/', async (req, res) => {
 router.get("/my-posts", auth, async (req, res) => {
     try {
         const userInfo = req.user;
+        console.log(userInfo._id);
         let posts = await getMyPosts(userInfo._id);
         res.send(posts);
     } catch (error) {

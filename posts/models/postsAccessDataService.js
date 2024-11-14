@@ -1,6 +1,7 @@
 const config = require('config');
 const { createError } = require("../../utils/handleErrors");
 const Post = require("./mongodb/Post");
+const { default: mongoose } = require('mongoose');
 
 const db = config.get('DB');
 
@@ -42,6 +43,7 @@ const getPostById = async (postId) => {
     }
 };
 
+
 const getMyPosts = async (userId) => {
     if (db === "mongodb") {
         try {
@@ -52,6 +54,7 @@ const getMyPosts = async (userId) => {
         }
     }
 };
+
 
 const updatePost = async (postId, editedPost) => {
     if (db === "mongodb") {
