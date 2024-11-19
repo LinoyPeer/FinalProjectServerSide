@@ -1,19 +1,17 @@
 const chalk = require("chalk");
 const Chat = require("../../chats/models/mongodb/Chat");
 
-function handleSocketConnection(socket, chatNamespace) {
+
+const handleSocketConnection = async (socket, chatNamespace) => {
     console.log('User connected');
-
     getChatHistory(socket);
-
     socket.on('sendMessage', (data) => handleSendMessage(socket, data, chatNamespace));
-
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });
 }
 
-async function getChatHistory(socket) {
+const getChatHistory = async (socket) => {
     try {
         const chatHistory = await Chat.find().select('-__v');
         socket.emit('chatHistory', chatHistory);
@@ -22,13 +20,14 @@ async function getChatHistory(socket) {
     }
 }
 
-async function handleSendMessage(socket, data, chatNamespace) {
+const handleSendMessage = async (socket, data, chatNamespace) => {
     console.log("Message received: ", data);
 
     if (!data.content || !data.timestamp || !data.sender || !data.sender._id) {
         console.log(chalk.red('Missing required data fields.'));
         return;
     }
+
 
     const newMessage = new Chat({
         content: data.content,
