@@ -1,4 +1,3 @@
-
 const express = require("express");
 const chalk = require("chalk");
 require('dotenv').config();
@@ -7,7 +6,7 @@ const morganLogger = require("./logger/loggers/morganLogger");
 const connectToDb = require("./DB/dbServise");
 const router = require("./router/router");
 const socketIo = require("socket.io");
-const Chat = require("./chats/models/mongodb/Chat");
+const { handleSocketConnection } = require("./sockets/services/socketService");
 
 const app = express();
 const PORT = 8181;
@@ -32,38 +31,8 @@ const corsSettings = {
 const io = socketIo(server, { cors: corsSettings });
 const chatNamespace = io.of('/chat');
 
-chatNamespace.on('connection', async (socket) => {
-    console.log('User connected');
-    try {
-        const chatHistory = await Chat.find().select('-__v');
-        socket.emit('chatHistory', chatHistory);
-        socket.emit('chatHistory', chatHistory.map(chat => chat.msg));
-    } catch (error) {
-        console.error(chalk.red("Error fetching chat history: "), error.message);
-    }
-
-    socket.on('sendMessage', async (data) => {
-        console.log("Message received: ", data);
-
-        const newMessage = new Chat({
-            content: data.content,
-            timestamp: data.timestamp,
-            sender: data.sender,
-        });
-
-        try {
-            await newMessage.save();
-            console.log(chalk.green("Message saved to DB"));
-            chatNamespace.emit('chatMessage', data);
-        } catch (error) {
-            console.error(chalk.red("Error saving message to DB: "), error.message);
-        }
-    });
-
-
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
+chatNamespace.on('connection', (socket) => {
+    handleSocketConnection(socket, chatNamespace);
 });
 
 app.use(corsMiddleware);
@@ -76,7 +45,6 @@ app.use((err, req, res, next) => {
     console.log(err);
     res.status(500).send(chalk.red('Internal error of the server'));
 });
-
 
 // ###################################################
 
