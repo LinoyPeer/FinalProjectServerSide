@@ -14,7 +14,9 @@ const io = socketIo(server, {
     },
 });
 
-const chatHistory = [];
+const chatHistory = []; 0
+
+
 
 io.on("connection", (stream) => {
     console.log("user connected");

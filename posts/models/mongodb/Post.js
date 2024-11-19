@@ -23,6 +23,10 @@ const postSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
+    chat_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
 });
 
 
