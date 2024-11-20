@@ -1,12 +1,12 @@
 const express = require("express");
 const chalk = require("chalk");
-require('dotenv').config();
+require("dotenv").config();
 const corsMiddleware = require("./middlewares/cors");
 const morganLogger = require("./logger/loggers/morganLogger");
 const connectToDb = require("./DB/dbServise");
 const router = require("./router/router");
 const socketIo = require("socket.io");
-const { handleSocketConnection } = require("./sockets/services/socketService");
+const { handleSocketConnection, corsSettings } = require("./sockets/services/socketService");
 
 const app = express();
 const PORT = 8181;
@@ -16,35 +16,35 @@ const server = app.listen(PORT, () => {
     connectToDb();
 });
 
-const corsSettings = {
-    origin: [
-        "http://127.0.0.1:5500",
-        "http://localhost:5500",
-        "http://127.0.0.1:5173",
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-    ],
-    credentials: true
-};
 
 const io = socketIo(server, { cors: corsSettings });
-const chatNamespace = io.of('/chat');
+const chatNamespace = io.of("/chat");
 
-chatNamespace.on('connection', (socket) => {
+chatNamespace.on("connection", (socket) => {
+    console.log("User connected to chat");
+    const { roomId } = socket.handshake.query;
+    console.log(roomId);
+
+    if (roomId) {
+        socket.join(roomId);
+        console.log(`User joined room: ${roomId}`);
+    }
+
     handleSocketConnection(socket, chatNamespace);
 });
+
 
 app.use(corsMiddleware);
 app.use(express.json());
 app.use(morganLogger);
 app.use(router);
-app.use(express.static('./public'));
+app.use(express.static("./public"));
 
 app.use((err, req, res, next) => {
     console.log(err);
-    res.status(500).send(chalk.red('Internal error of the server'));
+    res.status(500).send(chalk.red("Internal error of the server"));
 });
+
 
 // ###################################################
 

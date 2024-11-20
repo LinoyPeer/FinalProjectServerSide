@@ -1,47 +1,81 @@
 const chalk = require("chalk");
-const Chat = require("../../chats/models/mongodb/Chat");
-
+const Message = require("../../message/models/mongodb/Message");
+const ChatRoom = require("../../chatRooms/models/mongodb/ChatRoom");
 
 const handleSocketConnection = async (socket, chatNamespace) => {
     console.log('User connected');
-    getChatHistory(socket);
+    socket.on('getMessages', async (roomId) => await sendChatHistory(socket, roomId));
     socket.on('sendMessage', (data) => handleSendMessage(socket, data, chatNamespace));
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });
-}
+};
+// cosnt chatHistory ='chatHistory'
 
-const getChatHistory = async (socket) => {
+const sendChatHistory = async (socket, roomId) => {
     try {
-        const chatHistory = await Chat.find().select('-__v');
-        socket.emit('chatHistory', chatHistory);
+        const messages = await Message.find({ chatRoom: roomId })
+            .populate('sender')
+            .select('-__v');
+
+        if (!messages || messages.length === 0) {
+            console.log(`No messages found for room ${roomId}`);
+            socket.emit('chatHistory', []);
+            return;
+        }
+
+        console.log(messages);
+        socket.emit('chatHistory', messages);
     } catch (error) {
         console.error(chalk.red("Error fetching chat history: "), error.message);
     }
-}
+};
+
 
 const handleSendMessage = async (socket, data, chatNamespace) => {
-    console.log("Message received: ", data);
+    const { roomId, content, sender } = data;
 
-    if (!data.content || !data.timestamp || !data.sender || !data.sender._id) {
-        console.log(chalk.red('Missing required data fields.'));
+    if (!content || !roomId || !sender) {
+        console.error('Missing required fields');
         return;
     }
 
-
-    const newMessage = new Chat({
-        content: data.content,
-        timestamp: data.timestamp,
-        sender: data.sender,
-    });
-
     try {
-        await newMessage.save();
-        console.log(chalk.green("Message saved to DB"));
-        chatNamespace.emit('chatMessage', data);
-    } catch (error) {
-        console.error(chalk.red("Error saving message to DB: "), error.message);
-    }
-}
+        const newMessage = new Message({
+            content,
+            sender,
+            chatRoom: roomId,
+        });
 
-module.exports = { handleSocketConnection };
+        await newMessage.save();
+
+        // חיפוש או יצירת חדר חדש במקרה שהוא לא קיים
+        let room = await ChatRoom.findById(roomId);
+        if (!room) {
+            room = new ChatRoom({ _id: roomId, users: [sender] });
+            console.log(`Room ${roomId} was created`);
+        }
+
+        room.lastMessage = newMessage._id;
+        room.updatedAt = new Date();
+        await room.save();
+
+        chatNamespace.to(roomId).emit('chatMessage', newMessage);
+    } catch (error) {
+        console.error('Error saving message:', error.message);
+    }
+};
+
+const corsSettings = {
+    origin: [
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ],
+    credentials: true,
+};
+
+module.exports = { handleSocketConnection, corsSettings };
