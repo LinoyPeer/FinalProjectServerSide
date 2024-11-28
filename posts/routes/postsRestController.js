@@ -5,48 +5,101 @@ const auth = require("../../auth/authService");
 const { normalizePost } = require("../helpers/normalizePost");
 const validatePost = require("../validation/postValidationService");
 const { isBizNumberExists } = require("../helpers/generateBizNumber");
+const validatePostWithJoi = require("../validation/Joi/validatePostWithJoi");
+const upload = require("../../middlewares/multer");
+const { default: mongoose } = require("mongoose");
 
 const router = express.Router();
 
-router.post('/', auth, async (req, res) => {
+router.post('/', auth, upload.single('image'), async (req, res) => {
     try {
-        const userInfo = req.user;
-        if (!userInfo.isBusiness && !userInfo.isAdmin) {
-            return res.status(403).send('only business OR admin user can create a post')
+        console.log('Request body:', req.body);
+        console.log('Request file:', req.file);
+
+        const user_id = req.user._id;
+        console.log('Extracted user_id:', user_id);
+
+        const postData = req.body;
+        if (!postData.title) {
+            return res.status(400).send("Title is required");
         }
-        const validatedPost = validatePost(req.body);
-        if (typeof validatedPost === "string") {
-            return handleError(res, 400, 'validation error: ' + validatedPost);
+        console.log('Post data:', postData);
+
+        if (!req.file) {
+            console.log('No image uploaded');
+            return res.status(400).send("Image is required.");
         }
-        let newPost = await normalizePost(validatedPost, userInfo._id);
-        newPost = await createPost(newPost);
-        res.status(201).send(newPost);
+        const chat_id = new mongoose.Types.ObjectId();
+        const bizNumber = Math.floor(1000000 + Math.random() * 9000000);
+        console.log('Generated chat_id:', chat_id);
+        console.log('Generated bizNumber:', bizNumber);
+
+        // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        console.log("imageUrl: ", imageUrl);
+
+        const validatedPost = {
+            title: postData.title,
+            postStatus: postData.postStatus || '',
+            image: {
+                path: imageUrl, // נתיב URL לתמונה
+                alt: postData.imageAlt || 'Default Alt Text',
+            },
+            likes: [],
+            comments: [],
+            user_id,
+            chat_id,
+            bizNumber,
+        };
+        console.log('Post data before validation:', validatedPost);
+
+        const { error } = validatePostWithJoi(validatedPost);
+        if (error) {
+            console.log('Validation error:', error.details[0].message);
+            return res.status(400).send(error.details[0].message);
+        }
+
+        const newPost = await createPost(validatedPost);
+        console.log('New post created:', newPost);
+        res.status(201).json(newPost);
     } catch (error) {
-        handleError(res, error.status || 400, error.message);
+        console.error('Server error:', error);
+        res.status(500).send("Server error");
     }
 });
 
-router.get('/', async (req, res) => {
-    try {
-        const allPosts = await getAllPosts();
-        if (allPosts.length === 0) {
-            return res.status(200).send('There is no posts yet');
-        }
-        res.status(200).send(allPosts);
-    } catch (error) {
-        handleError(res, error.status || 400, error.message);
-    }
-});
+
 
 router.get("/my-posts", auth, async (req, res) => {
     try {
-        const userInfo = req.user;
-        console.log(userInfo._id);
-        let posts = await getMyPosts(userInfo._id);
-        res.send(posts);
+        const userId = req.user._id;
+        const posts = await getMyPosts(userId);
+
+        if (!posts || posts.length === 0) {
+            return res.status(404).json({ message: 'No posts found' });
+        }
+
+        return res.status(200).json(posts);
     } catch (error) {
         console.error("Error fetching posts:", error);
-        handleError(res, error.status || 400, error.message);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+});
+
+
+
+router.get("/", async (req, res) => {
+    try {
+        const posts = await getAllPosts();
+
+        if (!posts || posts.length === 0) {
+            return res.status(404).json({ message: 'No posts found' });
+        }
+
+        return res.status(200).json(posts);
+    } catch (error) {
+        console.error("Error fetching posts:", error);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 });
 
@@ -143,6 +196,7 @@ router.delete("/:id", auth, async (req, res) => {
 router.post('/:id/comments', auth, async (req, res) => {
     const { id } = req.params;
     const { comment } = req.body;
+    const userInfo = req.user;
 
     try {
         const fullPostFromDb = await getPostById(id);
@@ -151,8 +205,10 @@ router.post('/:id/comments', auth, async (req, res) => {
                 message: "Post not found: No post exists with the provided ID or it is no longer available"
             });
         }
-        const result = await createComment(id, comment);
-        res.status(200).send(result);
+        if (userInfo.isAdmin || userInfo.isBussines) {
+            const result = await createComment(id, comment);
+            res.status(200).send(result);
+        }
     } catch (error) {
         res.status(400).send({
             message: error.message || "An unknown error occurred"

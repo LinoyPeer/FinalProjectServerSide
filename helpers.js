@@ -11,6 +11,7 @@ fs.mkdir(mkdirpath, { recursive: true }, (err) => {
     }
 });
 
+
 // יצירת דף
 const writeFilePath = './posts/moodels/mongodb/Post';
 

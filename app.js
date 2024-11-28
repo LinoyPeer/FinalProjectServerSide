@@ -10,6 +10,7 @@ const { handleSocketConnection, corsSettings } = require("./sockets/services/soc
 
 const app = express();
 const PORT = 8181;
+const path = require("path");
 
 const server = app.listen(PORT, () => {
     console.log(chalk.yellow(`Listening to port: ${PORT}`));
@@ -21,24 +22,14 @@ const io = socketIo(server, {
     pingTimeout: 60000,
     pingInterval: 25000
 });
+
 const chatNamespace = io.of("/chat");
 console.log("Namespace details:", chatNamespace.name);
 console.log("Available namespaces:", io._nsps.keys());
 console.log('Socket connection details:', {
     namespaces: Array.from(io._nsps.keys())
 });
-// chatNamespace.on("connection", (socket) => {
-//     console.log("User connected to chat");
-//     const { roomId } = socket.handshake.query;
-//     console.log("Received roomId:", roomId); // הוסף לוג זה
 
-//     if (roomId) {
-//         socket.join(roomId);
-//         console.log(`User joined room: ${roomId}`);
-//     }
-
-//     handleSocketConnection(socket, chatNamespace);
-// });
 chatNamespace.on("connection", (socket) => {
     console.log(chalk.green("New connection to chat namespace"));
     console.log(chalk.blue("Socket ID:", socket.id));
@@ -57,11 +48,13 @@ chatNamespace.on("connection", (socket) => {
     handleSocketConnection(socket, chatNamespace);
 });
 
-app.use(corsMiddleware);
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(corsMiddleware);
 app.use(morganLogger);
 app.use(router);
-app.use(express.static("./public"));
 
 app.use((err, req, res, next) => {
     console.log(err);

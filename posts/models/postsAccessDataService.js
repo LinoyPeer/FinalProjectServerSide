@@ -1,7 +1,6 @@
 const config = require('config');
 const { createError } = require("../../utils/handleErrors");
 const Post = require("./mongodb/Post");
-const { default: mongoose } = require('mongoose');
 
 const db = config.get('DB');
 
