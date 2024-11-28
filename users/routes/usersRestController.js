@@ -2,16 +2,28 @@ const express = require('express');
 const { handleError } = require('../../utils/handleErrors');
 const { getAllUsers, registerUser, getUserById, loginUser, deleteUser, editUser, changeUserStatus } = require('../models/usersAccessDataService');
 const auth = require('../../auth/authService');
+const upload = require('../../middlewares/multer');
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
     try {
         const newUser = req.body;
+
+        if (req.file) {
+            newUser.image = {
+                path: req.file.path,
+                alt: 'Profile Picture'
+            };
+            console.log(newUser);
+            newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        }
+
         const signin = await registerUser(newUser);
+
         res.status(201).send(signin);
     } catch (e) {
-        handleError(res, e.status || 400, e.message)
+        res.status(400).send(e.message || "An error occurred");
     }
 });
 

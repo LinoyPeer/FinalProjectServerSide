@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const Image = require('../../../helpers/mongodb/Image');
 const { DEFAULT_VALIDATION } = require('../../../helpers/mongodb/mongooseValidation.js');
+const _ = require('lodash');
 
-// הגדרת המודל של הפוסט
 const postSchema = new mongoose.Schema({
-    title: DEFAULT_VALIDATION,
+    title: { ...DEFAULT_VALIDATION, required: false },
     postStatus: { ...DEFAULT_VALIDATION, maxLength: 1024, minLength: 0, required: false },
-    image: Image, // כאן אנחנו שומרים את האובייקט המלא של התמונה עם path ו-alt
+    image: Image,
     bizNumber: {
         type: Number,
         required: true,
@@ -23,6 +23,24 @@ const postSchema = new mongoose.Schema({
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     chat_id: { type: mongoose.Schema.Types.ObjectId, required: true },
 });
+
+postSchema.pre('save', async function (next) {
+    try {
+        const user = await mongoose.model('User').findById(this.user_id).select('name');
+
+        if (user) {
+            const userName = _.pick(user.name, ['first', 'middle', 'last']);
+            this.title = `${userName.first} ${userName.middle ? userName.middle + ' ' : ''}${userName.last}`;
+        } else {
+            this.title = 'UNKNOUWN';
+        }
+        next();
+    } catch (err) {
+        next(err);
+    }
+});
+
+
 
 const Post = mongoose.model("post", postSchema);
 module.exports = Post;

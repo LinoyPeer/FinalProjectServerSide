@@ -15,14 +15,15 @@ const getAllUsers = async () => {
 
 const registerUser = async (newUser) => {
     try {
-        newUser.password = generateUserPassword(newUser.password)
+        newUser.password = generateUserPassword(newUser.password);
         let user = await User.create(newUser);
-        user = _.pick(user, ['name', 'email', '_id'])
         return user;
     } catch (e) {
-        createError('Mongoose', e, 403);
+        console.error("Error registering user:", e);
+        throw new Error('Error during registration');
     }
-}
+};
+
 
 
 const loginUser = async (email, password) => {
@@ -55,7 +56,16 @@ const loginUser = async (email, password) => {
     }
 };
 
-
+// const getUserById = async (id) => {
+//     try {
+//         let userById = await User.findById(id);
+//         userById = _.pick(userById, ['_id', 'name', 'email', 'phone', 'image', 'address', 'isAdmin', 'isBusiness', 'createdAt']
+//         )
+//         return userById;
+//     } catch (e) {
+//         createError('Mongoose', e, 403);
+//     }
+// }
 const getUserById = async (id) => {
     try {
         const userById = await User.findById(id);
@@ -63,7 +73,7 @@ const getUserById = async (id) => {
     } catch (e) {
         createError('Mongoose', e, 403);
     }
-}
+};
 
 const deleteUser = async (id) => {
     try {

@@ -20,9 +20,7 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
         console.log('Extracted user_id:', user_id);
 
         const postData = req.body;
-        if (!postData.title) {
-            return res.status(400).send("Title is required");
-        }
+
         console.log('Post data:', postData);
 
         if (!req.file) {
@@ -39,7 +37,6 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
         console.log("imageUrl: ", imageUrl);
 
         const validatedPost = {
-            title: postData.title,
             postStatus: postData.postStatus || '',
             image: {
                 path: imageUrl, // נתיב URL לתמונה
@@ -91,11 +88,12 @@ router.get("/my-posts", auth, async (req, res) => {
 router.get("/", async (req, res) => {
     try {
         const posts = await getAllPosts();
-
-        if (!posts || posts.length === 0) {
-            return res.status(404).json({ message: 'No posts found' });
+        if (!posts) {
+            throw new Error('Posts undefined or null');
         }
-
+        if (posts.length === 0) {
+            return res.status(200).json({ message: 'No posts found' });
+        }
         return res.status(200).json(posts);
     } catch (error) {
         console.error("Error fetching posts:", error);
