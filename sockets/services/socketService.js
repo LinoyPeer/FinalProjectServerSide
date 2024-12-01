@@ -32,8 +32,6 @@ const sendChatHistory = async (socket, roomId) => {
 };
 
 const handleSendMessage = async (socket, data, chatNamespace) => {
-    console.log('data: ', data);
-
     const { roomId, content, sender } = data;
 
     if (!content || !roomId || !sender) {
@@ -53,7 +51,6 @@ const handleSendMessage = async (socket, data, chatNamespace) => {
         let room = await ChatRoom.findById(roomId);
         if (!room) {
             room = new ChatRoom({ _id: roomId, users: [sender] });
-            console.log(`Room ${roomId} was created`);
         }
 
         room.lastMessage = newMessage._id;
@@ -61,7 +58,6 @@ const handleSendMessage = async (socket, data, chatNamespace) => {
         await room.save();
 
         chatNamespace.to(roomId).emit("chatMessage", newMessage);
-        console.log('newMessage!!!!!:  ', newMessage);
     } catch (error) {
         console.error("Error saving message:", error.message);
     }

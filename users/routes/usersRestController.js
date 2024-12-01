@@ -6,16 +6,35 @@ const upload = require('../../middlewares/multer');
 
 const router = express.Router();
 
+// router.post('/', upload.single('image'), async (req, res) => {
+//     try {
+//         const newUser = req.body;
+
+//         if (req.file) {
+//             newUser.image = {
+//                 path: req.file.path,
+//                 alt: 'Profile Picture'
+//             };
+//             console.log(newUser);
+//             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+//         }
+
+//         const signin = await registerUser(newUser);
+
+//         res.status(201).send(signin);
+//     } catch (e) {
+//         res.status(400).send(e.message || "An error occurred");
+//     }
+// });
 router.post('/', upload.single('image'), async (req, res) => {
     try {
-        const newUser = req.body;
+        const newUser = { ...req.body };
 
         if (req.file) {
             newUser.image = {
                 path: req.file.path,
                 alt: 'Profile Picture'
             };
-            console.log(newUser);
             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
@@ -45,6 +64,8 @@ router.get('/', auth, async (req, res) => {
             return res.status(403).send('Access denied. Admins only.');
         }
         const allUsers = await getAllUsers();
+        // const nameOfUsers = allUsers.map((userName => userName.name.first))
+        console.log('user1!!!!!: ', allUsers);
         if (allUsers.length === 0) {
             return res.status(200).send('There is no users yet');
         }
