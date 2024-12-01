@@ -29,12 +29,12 @@ const router = express.Router();
 router.post('/', upload.single('image'), async (req, res) => {
     try {
         const newUser = { ...req.body };
-
         if (req.file) {
             newUser.image = {
                 path: req.file.path,
                 alt: 'Profile Picture'
             };
+            // console.log('newUser: ', newUser);
             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
