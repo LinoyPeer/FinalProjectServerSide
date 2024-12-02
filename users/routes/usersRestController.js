@@ -26,22 +26,28 @@ const router = express.Router();
 //         res.status(400).send(e.message || "An error occurred");
 //     }
 // });
+
+
+
 router.post('/', upload.single('image'), async (req, res) => {
     try {
+        console.log('req.body:', req.body);
+        console.log('req.file:', req.file);
+
         const newUser = { ...req.body };
+
         if (req.file) {
             newUser.image = {
                 path: req.file.path,
                 alt: 'Profile Picture'
             };
-            // console.log('newUser: ', newUser);
             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
         const signin = await registerUser(newUser);
-
         res.status(201).send(signin);
     } catch (e) {
+        console.error("Error during registration:", e);  // הדפס את השגיאה
         res.status(400).send(e.message || "An error occurred");
     }
 });
