@@ -47,7 +47,7 @@ router.post('/', upload.single('image'), async (req, res) => {
         const signin = await registerUser(newUser);
         res.status(201).send(signin);
     } catch (e) {
-        console.error("Error during registration:", e);  // הדפס את השגיאה
+        console.error("Error during registration:", e);
         res.status(400).send(e.message || "An error occurred");
     }
 });

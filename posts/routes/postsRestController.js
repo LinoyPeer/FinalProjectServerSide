@@ -32,14 +32,13 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
         console.log('Generated chat_id:', chat_id);
         console.log('Generated bizNumber:', bizNumber);
 
-        // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         console.log("imageUrl: ", imageUrl);
 
         const validatedPost = {
             postStatus: postData.postStatus || '',
             image: {
-                path: imageUrl, // נתיב URL לתמונה
+                path: imageUrl,
                 alt: postData.imageAlt || 'Default Alt Text',
             },
             likes: [],
