@@ -3,6 +3,7 @@ const { handleError } = require('../../utils/handleErrors');
 const { getAllUsers, registerUser, getUserById, loginUser, deleteUser, editUser, changeUserStatus } = require('../models/usersAccessDataService');
 const auth = require('../../auth/authService');
 const upload = require('../../middlewares/multer');
+const User = require('../models/mongodb/User');
 
 const router = express.Router();
 
@@ -133,21 +134,22 @@ router.delete('/:id', auth, async (req, res) => {
 //     }
 // });
 
-
 router.put('/:id', auth, upload.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
         const userInfo = req.user;
-        const { firstName, middleName, lastName } = req.body;
+        const { firstName, middleName, lastName, bio } = req.body;
 
         if (userInfo._id !== id && !userInfo.isAdmin) {
             return res.status(403).send('You do not have permission to edit this user.');
         }
+
         const updatedData = {};
 
         if (firstName) updatedData.name = { ...updatedData.name, first: firstName };
         if (middleName) updatedData.name = { ...updatedData.name, middle: middleName };
         if (lastName) updatedData.name = { ...updatedData.name, last: lastName };
+        if (bio !== undefined) updatedData.bio = bio; // עדכון ה-BIO
 
         if (req.file) {
             updatedData.image = {
@@ -155,10 +157,9 @@ router.put('/:id', auth, upload.single('image'), async (req, res) => {
                 alt: 'Profile Picture'
             };
             updatedData.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-            console.log('Image path: ', updatedData.image.path);
         }
 
-        const userToUpdate = await editUser(id, updatedData);
+        const userToUpdate = await User.findByIdAndUpdate(id, updatedData, { new: true });
 
         res.send(userToUpdate);
     } catch (e) {
@@ -166,6 +167,7 @@ router.put('/:id', auth, upload.single('image'), async (req, res) => {
         res.status(400).send(e.message);
     }
 });
+
 
 
 router.patch('/:id/status', auth, async (req, res) => {

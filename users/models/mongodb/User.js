@@ -17,6 +17,7 @@ const schema = new mongoose.Schema({
     address: Address,
     isAdmin: { type: Boolean, default: false },
     isBusiness: { type: Boolean, default: false },
+    bio: { type: String, required: false, default: 'Welcome to my InstaPost profile page' },
     createdAt: {
         type: Date,
         default: Date.now,
