@@ -64,12 +64,12 @@ router.post('/login', async (req, res) => {
 });
 
 
-router.get('/', auth, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const userInfo = req.user;
-        if (!userInfo) {
-            return res.status(403).send('Access denied. Admins only.');
-        }
+        // const userInfo = req.user;
+        // if (!userInfo) {
+        //     return res.status(403).send('Access denied. Admins only.');
+        // }
         const allUsers = await getAllUsers();
         // const nameOfUsers = allUsers.map((userName => userName.name.first))
         console.log('user1!!!!!: ', allUsers);

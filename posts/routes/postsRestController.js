@@ -70,9 +70,8 @@ router.get("/my-posts", auth, async (req, res) => {
     try {
         const userId = req.user._id;
         const posts = await getMyPosts(userId);
-
         if (!posts || posts.length === 0) {
-            return res.status(404).json({ message: 'No posts found' });
+            return res.status(200);
         }
 
         return res.status(200).json(posts);
