@@ -30,7 +30,6 @@ const sendChatHistory = async (socket, roomId) => {
         console.error(chalk.red("Error fetching chat history: "), error.message);
     }
 };
-
 const handleSendMessage = async (socket, data, chatNamespace) => {
     const { roomId, content, sender } = data;
 
@@ -57,7 +56,13 @@ const handleSendMessage = async (socket, data, chatNamespace) => {
         room.updatedAt = new Date();
         await room.save();
 
-        chatNamespace.to(roomId).emit("chatMessage", newMessage);
+        // שליחה לכל המשתמשים בחדר עם הודעה חדשה
+        chatNamespace.to(roomId).emit("chatMessage", {
+            ...newMessage.toObject(),
+            sender: {
+                ...sender, // מבטיח שכולל את המידע של המשתמש (שם, תמונה וכו')
+            }
+        });
     } catch (error) {
         console.error("Error saving message:", error.message);
     }
