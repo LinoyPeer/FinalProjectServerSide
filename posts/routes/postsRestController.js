@@ -201,7 +201,7 @@ router.post('/:id/comments', auth, async (req, res) => {
                 message: "Post not found: No post exists with the provided ID or it is no longer available"
             });
         }
-        if (userInfo.isAdmin || userInfo.isBussines) {
+        if (userInfo.isAdmin || userInfo.isBusiness) {
             const result = await createComment(id, comment);
             res.status(200).send(result);
         }
