@@ -192,7 +192,6 @@ router.delete("/:id", auth, async (req, res) => {
 router.post('/:id/comments', auth, async (req, res) => {
     const { id } = req.params;
     const { comment } = req.body;
-    const userInfo = req.user;
 
     try {
         const fullPostFromDb = await getPostById(id);
@@ -201,16 +200,18 @@ router.post('/:id/comments', auth, async (req, res) => {
                 message: "Post not found: No post exists with the provided ID or it is no longer available"
             });
         }
-        if (userInfo.isAdmin || userInfo.isBusiness) {
-            const result = await createComment(id, comment);
-            res.status(200).send(result);
-        }
+
+        // קריאה לפונקציה עם req (פרטי היוזר)
+        const result = await createComment(id, comment, req);
+        res.status(200).send(result);
     } catch (error) {
         res.status(400).send({
             message: error.message || "An unknown error occurred"
         });
     }
 });
+
+
 
 
 

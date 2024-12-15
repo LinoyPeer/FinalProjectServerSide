@@ -16,7 +16,18 @@ const postSchema = new mongoose.Schema({
         default: () => Math.floor(1000000 + Math.random() * 9000000),
     },
     likes: [String],
-    comments: [String],
+    comments: [{
+        userName: {
+            first: { type: String, required: false },
+            middle: { type: String, required: false },
+            last: { type: String, required: false }
+        },
+        userId: { type: mongoose.Schema.Types.ObjectId, required: false, auto: true },
+        userImage: { type: String },
+        comment: { type: String, required: false },
+        commentId: { type: mongoose.Schema.Types.ObjectId, required: false, auto: true },
+        createdAt: { type: Date, default: Date.now }
+    }],
     createdAt: {
         type: Date,
         default: Date.now,
@@ -24,6 +35,7 @@ const postSchema = new mongoose.Schema({
     user_id: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     chat_id: { type: mongoose.Schema.Types.ObjectId, required: true },
 });
+
 postSchema.pre('save', async function (next) {
     try {
         console.log('this.user_id: ', this.user_id);
@@ -41,8 +53,6 @@ postSchema.pre('save', async function (next) {
         next(err);
     }
 });
-
-
 
 const Post = mongoose.model("post", postSchema);
 module.exports = Post;

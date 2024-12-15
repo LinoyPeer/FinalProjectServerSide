@@ -6,30 +6,6 @@ const upload = require('../../middlewares/multer');
 const User = require('../models/mongodb/User');
 
 const router = express.Router();
-
-// router.post('/', upload.single('image'), async (req, res) => {
-//     try {
-//         const newUser = req.body;
-
-//         if (req.file) {
-//             newUser.image = {
-//                 path: req.file.path,
-//                 alt: 'Profile Picture'
-//             };
-//             console.log(newUser);
-//             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-//         }
-
-//         const signin = await registerUser(newUser);
-
-//         res.status(201).send(signin);
-//     } catch (e) {
-//         res.status(400).send(e.message || "An error occurred");
-//     }
-// });
-
-
-
 router.post('/', upload.single('image'), async (req, res) => {
     try {
         console.log('req.body:', req.body);
@@ -37,6 +13,13 @@ router.post('/', upload.single('image'), async (req, res) => {
 
         const newUser = { ...req.body };
 
+        // בדיקה אם האימייל כבר קיים במערכת
+        const existingUser = await User.findOne({ email: newUser.email });  // חיפוש נכון של האימייל
+        if (existingUser) {
+            return res.status(400).send("This email is already registered.");  // אם האימייל קיים, מחזירים שגיאה
+        }
+
+        // אם יש תמונה, מעדכנים את ה-URL שלה
         if (req.file) {
             newUser.image = {
                 path: req.file.path,
@@ -45,13 +28,41 @@ router.post('/', upload.single('image'), async (req, res) => {
             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
+        // יצירת משתמש חדש
         const signin = await registerUser(newUser);
-        res.status(201).send(signin);
+        res.status(201).send(signin);  // מחזירים את פרטי המשתמש החדש
+
     } catch (e) {
         console.error("Error during registration:", e);
         res.status(400).send(e.message || "An error occurred");
     }
 });
+
+
+
+
+// router.post('/', upload.single('image'), async (req, res) => {
+//     try {
+//         console.log('req.body:', req.body);
+//         console.log('req.file:', req.file);
+
+//         const newUser = { ...req.body };
+
+//         if (req.file) {
+//             newUser.image = {
+//                 path: req.file.path,
+//                 alt: 'Profile Picture'
+//             };
+//             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+//         }
+
+//         const signin = await registerUser(newUser);
+//         res.status(201).send(signin);
+//     } catch (e) {
+//         console.error("Error during registration:", e);
+//         res.status(400).send(e.message || "An error occurred");
+//     }
+// });
 
 router.post('/login', async (req, res) => {
     try {

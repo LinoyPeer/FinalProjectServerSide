@@ -1,6 +1,7 @@
 const config = require('config');
 const { createError } = require("../../utils/handleErrors");
 const Post = require("./mongodb/Post");
+const { default: mongoose } = require('mongoose');
 
 const db = config.get('DB');
 
@@ -112,21 +113,65 @@ const deletepost = async (postId) => {
     }
 };
 
-const createComment = async (postId, comment) => {
+const createComment = async (postId, comment, req) => {
     if (db === "mongodb") {
+        console.log('postId: ', postId);
+        console.log('comment: ', comment);
         try {
+            const userInfo = req.user;
+            if (!userInfo || !userInfo._id) {
+                throw new Error("User information not found");
+            }
+
+            // שליפת פרטי המשתמש ממסד הנתונים
+            const user = await mongoose.model('User').findById(userInfo._id);
+            if (!user) {
+                throw new Error("User not found in the database");
+            }
+
+            // יצירת האובייקט של התגובה
+            const firstName = user.name && user.name.first ? user.name.first : 'Unknown';
+            const middleName = user.name && user.name.middle ? user.name.middle : '';
+            const lastName = user.name && user.name.last ? user.name.last : 'Unknown';
+            const userImage = user.image ? user.image.path : 'Image Profile';
+
+            const commentObj = {
+                userName: {
+                    first: firstName,
+                    middle: middleName,
+                    last: lastName,
+                },
+                userId: userInfo._id,
+                userImage: userImage,
+                comment: comment || 'No comment provided',
+                commentId: new mongoose.Types.ObjectId(),
+                createdAt: new Date(),
+            };
+
+            console.log('commentObj: ', commentObj);
+
+            // חיפוש הפוסט לפי ה-ID
             let post = await Post.findById(postId);
             if (!post) {
                 throw new Error("A post with this ID cannot be found in the database");
             }
-            post.comments.push(comment);
+
+            // הוספת התגובה לפוסט
+            post.comments.push(commentObj);
             await post.save();
+
             return post;
         } catch (e) {
-            createError("Mongoose", e.message || "An unknown error occurred", 400);
+            console.error("Error creating comment:", e);
+            throw new Error(`Mongoose says: ${e.message || "An unknown error occurred"}`);
         }
     }
 };
+
+
+
+
+
 
 module.exports = {
     createPost,
