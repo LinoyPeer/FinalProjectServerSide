@@ -84,14 +84,17 @@ const deleteUser = async (id) => {
     }
 }
 
+
 const editUser = async (userId, editedUser) => {
     try {
+        // עדכון המשתמש עם המידע החדש
         let postToEdit = await User.findByIdAndUpdate(userId, editedUser, { upsert: true, new: true });
-        return postToEdit;
+        return postToEdit; // מחזירים את המשתמש המעודכן
     } catch (e) {
         createError('Mongoose', e, 403);
     }
-}
+};
+
 
 const changeUserStatus = async (id, statusUpdates) => {
     try {

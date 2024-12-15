@@ -133,24 +133,26 @@ router.delete('/:id', auth, async (req, res) => {
 //         handleError(res, e.status || 400, e.message);
 //     }
 // });
-
 router.put('/:id', auth, upload.single('image'), async (req, res) => {
     try {
         const { id } = req.params;
         const userInfo = req.user;
         const { firstName, middleName, lastName, bio } = req.body;
 
+        // אם המשתמש הנוכחי לא יכול לערוך את המשתמש המבוקש
         if (userInfo._id !== id && !userInfo.isAdmin) {
             return res.status(403).send('You do not have permission to edit this user.');
         }
 
         const updatedData = {};
 
+        // בדיקה אם יש שדות לעדכון
         if (firstName) updatedData.name = { ...updatedData.name, first: firstName };
         if (middleName) updatedData.name = { ...updatedData.name, middle: middleName };
         if (lastName) updatedData.name = { ...updatedData.name, last: lastName };
-        if (bio !== undefined) updatedData.bio = bio; // עדכון ה-BIO
+        if (bio !== undefined) updatedData.bio = bio;
 
+        // טיפול בתמונה (אם יש)
         if (req.file) {
             updatedData.image = {
                 path: req.file.path,
@@ -159,16 +161,16 @@ router.put('/:id', auth, upload.single('image'), async (req, res) => {
             updatedData.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
-        const userToUpdate = await User.findByIdAndUpdate(id, updatedData, { new: true });
+        // קריאה לפונקציה editUser שתעדכן את המשתמש
+        const updatedUser = await editUser(id, updatedData); // משתמשים בפונקציה editUser
 
-        res.send(userToUpdate);
+        // אם הכל עבר בהצלחה, מחזירים את המשתמש המעודכן
+        res.send(updatedUser);
     } catch (e) {
         console.error(e);
         res.status(400).send(e.message);
     }
 });
-
-
 
 router.patch('/:id/status', auth, async (req, res) => {
     try {
