@@ -56,16 +56,6 @@ const loginUser = async (email, password) => {
     }
 };
 
-// const getUserById = async (id) => {
-//     try {
-//         let userById = await User.findById(id);
-//         userById = _.pick(userById, ['_id', 'name', 'email', 'phone', 'image', 'address', 'isAdmin', 'isBusiness', 'createdAt']
-//         )
-//         return userById;
-//     } catch (e) {
-//         createError('Mongoose', e, 403);
-//     }
-// }
 const getUserById = async (id) => {
     try {
         const userById = await User.findById(id);
