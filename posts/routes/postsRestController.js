@@ -164,6 +164,7 @@ router.delete("/:id", auth, async (req, res) => {
         const userInfo = req.user;
         const { id } = req.params;
         const fullPostFromDb = await getPostById(id);
+        console.log("DELETED!!!: ", fullPostFromDb);
         if (!fullPostFromDb) {
             return handleError(
                 res,
