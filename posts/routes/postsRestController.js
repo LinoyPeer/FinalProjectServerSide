@@ -17,6 +17,12 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
         console.log('Request file:', req.file);
 
         const user_id = req.user._id;
+        const userInfo = req.user;
+        if (!userInfo || !userInfo.isAdmin && !userInfo.isBusiness) {
+            console.log('User is not authorized to upload post');
+            return res.status(403).send("You are not authorized to upload a post.");
+        }
+
         console.log('Extracted user_id:', user_id);
 
         const postData = req.body;
@@ -70,6 +76,11 @@ router.get("/my-posts", auth, async (req, res) => {
     try {
         const userId = req.user._id;
         const posts = await getMyPosts(userId);
+        const userInfo = req.user;
+        if (!userInfo || !userInfo.isAdmin && !userInfo.isBusiness) {
+            console.log('User is not authorized ');
+            return res.status(403).send("You are not authorized .");
+        }
         if (!posts || posts.length === 0) {
             return res.status(200);
         }
