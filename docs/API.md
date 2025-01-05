@@ -204,10 +204,12 @@
 - **Method:** `POST`
 - **Authentication:** Required (Business users or admin only)
 - **Request Body:**
-  - Fields: `title`, `postStatus`, `image`, `bizNumber`, `likes`, `comments`.
+  - **Content-Type:** `multipart/form-data`
+  - Fields: `title`, `postStatus`, `image`, `bizNumber`.
+  - **Data Type:** The request body should be sent as `form-data`, containing the relevant fields to update the post in the database.
 - **Response:**
-  - Returns the created post object.
-
+  - Returns the updated post object, reflecting the changes made based on the provided form-data.
+  
   #### Example Response Body:
 ```json
 {
