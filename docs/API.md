@@ -83,9 +83,12 @@
 - **Endpoint:** `/users`
 - **Method:** `POST`
 - **Request Body:**
+  - **Content-Type:** `multipart/form-data`
   - Fields: `name`, `phone`, `email`, `password`, `image`, `address`, `isAdmin`, `isBusiness`.
+  - **Data Type:** The request body should be sent as `form-data`, containing the relevant fields to create the new user in the database.
 - **Response:**
   - Returns the created user object along with the user ID.
+
 #### Example Request Body:
 ```json
 {
@@ -209,7 +212,7 @@
   - **Data Type:** The request body should be sent as `form-data`, containing the relevant fields to update the post in the database.
 - **Response:**
   - Returns the updated post object, reflecting the changes made based on the provided form-data.
-  
+
   #### Example Response Body:
 ```json
 {
