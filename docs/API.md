@@ -351,7 +351,7 @@
 
 - **Endpoint:** `/posts/:id`
 - **Method:** `PATCH`
-- **Authentication:** Required (Business users only)
+- **Authentication:** Required to be logged
 - **Response:**
   - Adds/removes a like by the authenticated user.
   - Returns the post object with updated likes.
