@@ -14,23 +14,24 @@
 | email | | `string` |Unique key |
 | password | | `string` | Trimmed, required, and unique key |
 | image | | `object` | Including an uniqe key |
-| | url | `string` | |
+| | path | `string` | | 
 | | alt | `string` | |
 | adress | | `string` | Unique key |
 | isAdmin | | `boolean` | Defaults to false |
 | isBusiness | | `boolean` | Defaults to false |
 | createdAt | | `string` | Automatically generated on create |
 | lockUntil | | `Date` |  Default value null |
+| bio | | `string` |  Default value 'Welcome to my InstaPost profile page' |
 | failedLoginAttempts | | `Number` |  Default value 0 |
 ---
 ### Post
 
 | Field|| Type| Notes|
 |-------------|--------|----------|------------------------------------|
-|title|| `object` | Uses default validation|
-|description|| `string` | Max length is 1024 characters|
+|title|| `object` | taken from the object name of users collection|
+|path|| `string` | Max length is 1024 characters|
 |image|| `object`||
-|| url|`string`| URL of the image|
+|| path|`string`| formData type of request|
 ||alt|`string`|Alt text for the image|
 |bizNumber||`number`|Required, between 1000000 and 9999999|
 | likes||`array`| Array of strings (user IDs who liked the post)|
@@ -39,6 +40,30 @@
 | user_id||`objectId`|References the user who created the post, required|
 
 ---
+
+### ChatRoom
+| Field| Type|Notes                                          |
+|--------------|----------|------------------------------------------------|
+| _id| `string` | Unique identifier for the chat|
+| users|`array`| Array of user IDs who are part of the chat|
+| createdAt| `date`| Automatically generated at creation|
+| updatedAt | `date`| Automatically updated when changes occur |
+| lastMessage| `string` | Reference to the last message ID in the chat|
+| __v | `number` | Version key used by MongoDB for internal use   |
+
+---
+
+### Message
+
+| Field| Type | Notes|
+|--------------|-----------|-----------------------------------------------|
+| _id | `string`  | Unique identifier for the message|
+| chatRoom | `string`  | Reference to the chat room (chat ID)|
+| content| `string`  | The content of the message  |
+| sender| `string`  | Reference to the sender's user ID |
+| timestamp| `date`| Timestamp when the message was sent |
+| __v | `number`  | Version key used by MongoDB for internal use  |
+
 
 ## Users API
 
@@ -73,7 +98,7 @@
     "email": "BUSINESS@gmail.com",
     "password": "securePassword123",
     "image": {
-        "url": "https://via.placeholder.com/150",
+        "path": "https://via.placeholder.com/150",
         "alt": "Profile Image"
     },
     "address": {
@@ -135,7 +160,7 @@
         "email": "linoy.peer@example.com",
         "password": "$2a$10$S",
         "image": {
-            "url": "https://via.placeholder.com/150",
+            "path": "https://via.placeholder.com/150",
             "alt": "profile image",
         },
         "address": {
@@ -179,20 +204,44 @@
 - **Method:** `POST`
 - **Authentication:** Required (Business users or admin only)
 - **Request Body:**
-  - Fields: `title`, `description`, `image`, `bizNumber`, `likes`, `comments`.
+  - Fields: `title`, `postStatus`, `image`, `bizNumber`, `likes`, `comments`.
 - **Response:**
   - Returns the created post object.
 
-  #### Example Request Body:
+  #### Example Response Body:
 ```json
 {
-  "title": "create new post Garden Flowers",
-  "postStatus": "Spring is here and the flowers are blooming everywhere! Loving the vibrant colors and fresh smells of nature.",
-  "image": {
-    "url": "https://images.app.goo.gl/HymjtKTWAMRbjqmw8",
-    "alt": "Flower garden"
-  },
-  "user_id": "67262ddbe519deea9c89c8e0"
+    "_id": "675f135cf7f2fd8e1c464a3a",
+    "postStatus": "my first post ❗",
+    "image": {
+        "path": "http://localhost:8181/uploads/1734284124745.png",
+        "alt": "default alt",
+        "_id": "675f135cf7f2fd8e1c464a3b"
+    },
+    "bizNumber": 5894752,
+    "likes": [
+        "675f1259f7f2fd8e1c4649f6"
+    ],
+    "user_id": "675f12d5f7f2fd8e1c464a1d",
+    "chat_id": "675f135cf7f2fd8e1c464a39",
+    "createdAt": "2024-12-15T17:35:24.788Z",
+    "title": "ofek _ 25",
+    "__v": 36,
+    "comments": [
+        {
+            "userName": {
+                "first": "linoy",
+                "middle": "_",
+                "last": "peer"
+            },
+            "userId": "675f1259f7f2fd8e1c4649f6",
+            "userImage": "http://localhost:8181/uploads/1734283865742.jpg",
+            "comment": "🤗",
+            "commentId": "6761422fdcfb7bb3217698f9",
+            "createdAt": "2024-12-17T09:19:43.737Z",
+            "_id": "6761422fdcfb7bb3217698fd"
+        }
+    ]
 }
 ```
 ### 2. **GET All Posts**
@@ -202,6 +251,76 @@
 - **Response:**
   - Returns an array of Post objects.
 
+```json
+[
+    {
+        "_id": "675f135cf7f2fd8e1c464a3a",
+        "postStatus": "My first post 🎉",
+        "image": {
+            "path": "http://localhost:8181/uploads/1734284124745.png",
+            "alt": "default image",
+            "_id": "675f135cf7f2fd8e1c464a3b"
+        },
+        "bizNumber": 5894752,
+        "likes": [
+            "675f1259f7f2fd8e1c4649f6"
+        ],
+        "user_id": "675f12d5f7f2fd8e1c464a1d",
+        "chat_id": "675f135cf7f2fd8e1c464a39",
+        "createdAt": "2024-12-15T17:35:24.788Z",
+        "title": "Shlomi _ 30",
+        "__v": 36,
+        "comments": [
+            {
+                "userName": {
+                    "first": "Yael",
+                    "middle": "_",
+                    "last": "Cohen"
+                },
+                "userId": "675f1259f7f2fd8e1c4649f6",
+                "userImage": "http://localhost:8181/uploads/1734283865742.jpg",
+                "comment": "💬",
+                "commentId": "6761422fdcfb7bb3217698f9",
+                "createdAt": "2024-12-17T09:19:43.737Z",
+                "_id": "6761422fdcfb7bb3217698fd"
+            }
+        ]
+    },
+    {
+        "_id": "675f135cf7f2fd8e1c464a3b",
+        "postStatus": "New experiences 🚀",
+        "image": {
+            "path": "http://localhost:8181/uploads/1734284124746.png",
+            "alt": "new image",
+            "_id": "675f135cf7f2fd8e1c464a3c"
+        },
+        "bizNumber": 5894753,
+        "likes": [
+            "675f1259f7f2fd8e1c4649f7"
+        ],
+        "user_id": "675f12d5f7f2fd8e1c464a1e",
+        "chat_id": "675f135cf7f2fd8e1c464a40",
+        "createdAt": "2024-12-16T10:25:10.123Z",
+        "title": "Maor _ 28",
+        "__v": 42,
+        "comments": [
+            {
+                "userName": {
+                    "first": "Michal",
+                    "middle": "_",
+                    "last": "Rosenblum"
+                },
+                "userId": "675f1259f7f2fd8e1c4649f7",
+                "userImage": "http://localhost:8181/uploads/1734283865743.jpg",
+                "comment": "😎",
+                "commentId": "6761422fdcfb7bb3217698fa",
+                "createdAt": "2024-12-18T08:13:32.569Z",
+                "_id": "6761422fdcfb7bb3217698fe"
+            }
+        ]
+    }
+]
+```
 ### 3. **GET User’s Posts**
 
 - **Endpoint:** `/posts/my-posts`
@@ -223,22 +342,10 @@
 - **Method:** `PUT`
 - **Authentication:** Required (user's post or admin only)
 - **Request Body:**
-  - Fields: `title`, `description`, `image`, `bizNumber`.
+  - Fields: `title`, `postStatus`, `image`, `bizNumber`.
 - **Response:**
   - Returns the updated post object.
 
-#### Example Request Body:
-```json
-{
-  "title": "Delightful Garden Flowers",
-  "postStatus": "Spring is here and the flowers are blooming everywhere! Loving the vibrant colors and fresh smells of nature.",
-  "image": {
-    "url": "https://images.app.goo.gl/HymjtKTWAMRbjqmw8",
-    "alt": "Flower garden"
-  },
-  "user_id": "67262ddbe519deea9c89c8e0"
-}
-```
 
 ### 6. **PATCH Like Post**
 
@@ -248,6 +355,44 @@
 - **Response:**
   - Adds/removes a like by the authenticated user.
   - Returns the post object with updated likes.
+
+  #### Example Request Body (after clicking like): 
+```json
+{
+    "_id": "675f135cf7f2fd8e1c464a3a",
+    "postStatus": "my first post ❗",
+    "image": {
+        "path": "http://localhost:8181/uploads/1734284124745.png",
+        "alt": "default alt",
+        "_id": "675f135cf7f2fd8e1c464a3b"
+    },
+    "bizNumber": 5894752,
+      "likes": [
+            "675f1259f7f2fd8e1c4649f6"
+        ],
+    "user_id": "675f12d5f7f2fd8e1c464a1d",
+    "chat_id": "675f135cf7f2fd8e1c464a39",
+    "createdAt": "2024-12-15T17:35:24.788Z",
+    "title": "ofek _ 25",
+    "__v": 36,
+    "comments": [
+        {
+            "userName": {
+                "first": "linoy",
+                "middle": "_",
+                "last": "peer"
+            },
+            "userId": "675f1259f7f2fd8e1c4649f6",
+            "userImage": "http://localhost:8181/uploads/1734283865742.jpg",
+            "comment": "🤗",
+            "commentId": "6761422fdcfb7bb3217698f9",
+            "createdAt": "2024-12-17T09:19:43.737Z",
+            "_id": "6761422fdcfb7bb3217698fd"
+        }
+    ]
+}
+```
+
 
 ### 7. **DELETE Post**
 
@@ -282,7 +427,7 @@
   - `comments`: string
 - **Response:**
   - Returns an array of comments .
-- **Description**
+- **postStatus**
 Adds a new comment to the specified post. Each comment is added as a string within an array of comments for the post.
 
 - **Request Parameters**
@@ -296,10 +441,29 @@ Adds a new comment to the specified post. Each comment is added as a string with
     "comment": "This is a new comment"
 }
 ```
+#### Example Comment Part Response Body:
+```json
+    "comments": [
+        {
+            "userName": {
+                "first": "linoy",
+                "middle": "_",
+                "last": "peer"
+            },
+            "userId": "6775bd9e7ad080e88541c5af",
+            "userImage": "http://localhost:8181/uploads/1735769502322.jpg",
+            "comment": "WOW!",
+            "commentId": "6777d47656ecab9d05fe1976",
+            "createdAt": "2025-01-03T12:13:42.769Z",
+            "_id": "6777d47656ecab9d05fe197a"
+        },
+    ]
+```
 ### Responses
 - **201 Created**: Returns the updated post object with the new comment.
 - **400 Bad Request**: If there’s an issue with the request, such as a missing or invalid comment or post ID.
 - **404 Not Found**: If the post with the specified ID does not exist.
+- **403 Unauthorized**: If the post with the specified ID does not exist.
 
 
 
