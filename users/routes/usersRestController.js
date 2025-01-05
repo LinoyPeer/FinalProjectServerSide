@@ -13,13 +13,11 @@ router.post('/', upload.single('image'), async (req, res) => {
 
         const newUser = { ...req.body };
 
-        // בדיקה אם האימייל כבר קיים במערכת
-        const existingUser = await User.findOne({ email: newUser.email });  // חיפוש נכון של האימייל
+        const existingUser = await User.findOne({ email: newUser.email });
         if (existingUser) {
-            return res.status(400).send("This email is already registered.");  // אם האימייל קיים, מחזירים שגיאה
+            return res.status(400).send("This email is already registered.");
         }
 
-        // אם יש תמונה, מעדכנים את ה-URL שלה
         if (req.file) {
             newUser.image = {
                 path: req.file.path,
@@ -28,41 +26,13 @@ router.post('/', upload.single('image'), async (req, res) => {
             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
-        // יצירת משתמש חדש
         const signin = await registerUser(newUser);
-        res.status(201).send(signin);  // מחזירים את פרטי המשתמש החדש
-
+        res.status(201).send(signin);
     } catch (e) {
         console.error("Error during registration:", e);
         res.status(400).send(e.message || "An error occurred");
     }
 });
-
-
-
-
-// router.post('/', upload.single('image'), async (req, res) => {
-//     try {
-//         console.log('req.body:', req.body);
-//         console.log('req.file:', req.file);
-
-//         const newUser = { ...req.body };
-
-//         if (req.file) {
-//             newUser.image = {
-//                 path: req.file.path,
-//                 alt: 'Profile Picture'
-//             };
-//             newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-//         }
-
-//         const signin = await registerUser(newUser);
-//         res.status(201).send(signin);
-//     } catch (e) {
-//         console.error("Error during registration:", e);
-//         res.status(400).send(e.message || "An error occurred");
-//     }
-// });
 
 router.post('/login', async (req, res) => {
     try {
@@ -77,13 +47,8 @@ router.post('/login', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        // const userInfo = req.user;
-        // if (!userInfo) {
-        //     return res.status(403).send('Access denied. Admins only.');
-        // }
+
         const allUsers = await getAllUsers();
-        // const nameOfUsers = allUsers.map((userName => userName.name.first))
-        console.log('user1!!!!!: ', allUsers);
         if (allUsers.length === 0) {
             return res.status(200).send('There is no users yet');
         }

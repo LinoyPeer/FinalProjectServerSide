@@ -38,12 +38,9 @@ const postSchema = new mongoose.Schema({
 
 postSchema.pre('save', async function (next) {
     try {
-        console.log('this.user_id: ', this.user_id);
         const user = await mongoose.model('User').findById(this.user_id);
-        console.log('user: ', user);
         if (user) {
             const userName = _.pick(user.name, ['first', 'middle', 'last']);
-            console.log('userName: ', userName);
             this.title = `${userName.first} ${userName.middle ? userName.middle + ' ' : ''}${userName.last}`;
         } else {
             this.title = 'UNKNOWN';

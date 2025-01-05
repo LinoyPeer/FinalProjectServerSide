@@ -115,21 +115,16 @@ const deletepost = async (postId) => {
 
 const createComment = async (postId, comment, req) => {
     if (db === "mongodb") {
-        console.log('postId: ', postId);
-        console.log('comment: ', comment);
         try {
             const userInfo = req.user;
             if (!userInfo || !userInfo._id) {
                 throw new Error("User information not found");
             }
-
-            // שליפת פרטי המשתמש ממסד הנתונים
             const user = await mongoose.model('User').findById(userInfo._id);
             if (!user) {
                 throw new Error("User not found in the database");
             }
 
-            // יצירת האובייקט של התגובה
             const firstName = user.name && user.name.first ? user.name.first : 'Unknown';
             const middleName = user.name && user.name.middle ? user.name.middle : '';
             const lastName = user.name && user.name.last ? user.name.last : 'Unknown';
@@ -148,15 +143,11 @@ const createComment = async (postId, comment, req) => {
                 createdAt: new Date(),
             };
 
-            console.log('commentObj: ', commentObj);
 
-            // חיפוש הפוסט לפי ה-ID
             let post = await Post.findById(postId);
             if (!post) {
                 throw new Error("A post with this ID cannot be found in the database");
             }
-
-            // הוספת התגובה לפוסט
             post.comments.push(commentObj);
             await post.save();
 

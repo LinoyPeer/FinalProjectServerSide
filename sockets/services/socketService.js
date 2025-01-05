@@ -56,11 +56,10 @@ const handleSendMessage = async (socket, data, chatNamespace) => {
         room.updatedAt = new Date();
         await room.save();
 
-        // שליחה לכל המשתמשים בחדר עם הודעה חדשה
         chatNamespace.to(roomId).emit("chatMessage", {
             ...newMessage.toObject(),
             sender: {
-                ...sender, // מבטיח שכולל את המידע של המשתמש (שם, תמונה וכו')
+                ...sender,
             }
         });
     } catch (error) {
@@ -68,18 +67,6 @@ const handleSendMessage = async (socket, data, chatNamespace) => {
     }
 };
 
-
-// const corsSettings = {
-//     origin: [
-//         "http://127.0.0.1:5500",
-//         "http://localhost:5500",
-//         "http://127.0.0.1:5173",
-//         "http://localhost:5173",
-//         "http://localhost:5174",
-//         "http://127.0.0.1:5174",
-//     ],
-//     credentials: true,
-// };
 const corsSettings = {
     origin: [
         "http://127.0.0.1:5500",

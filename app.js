@@ -32,7 +32,6 @@ console.log('Socket connection details:', {
 
 chatNamespace.on("connection", (socket) => {
     console.log(chalk.green("New connection to chat namespace"));
-    console.log(chalk.blue("Socket ID:", socket.id));
 
     const { roomId } = socket.handshake.query;
     console.log(chalk.yellow("Received roomId:", roomId));
