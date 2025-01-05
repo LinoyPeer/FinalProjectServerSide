@@ -427,9 +427,7 @@
   - `comments`: string
 - **Response:**
   - Returns an array of comments .
-- **postStatus**
-Adds a new comment to the specified post. Each comment is added as a string within an array of comments for the post.
-
+  
 - **Request Parameters**
 - `id` (String): Unique identifier of the post to which the comment will be added.
 
