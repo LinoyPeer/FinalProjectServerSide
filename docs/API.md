@@ -342,10 +342,11 @@
 - **Method:** `PUT`
 - **Authentication:** Required (user's post or admin only)
 - **Request Body:**
+  - **Content-Type:** `multipart/form-data`
   - Fields: `title`, `postStatus`, `image`, `bizNumber`.
+  - **Data Type:** The request body should be sent as `form-data`, containing the relevant fields to update the post in the database.
 - **Response:**
-  - Returns the updated post object.
-
+  - Returns the updated post object, reflecting the changes made based on the provided form-data.
 
 ### 6. **PATCH Like Post**
 
@@ -427,7 +428,7 @@
   - `comments`: string
 - **Response:**
   - Returns an array of comments .
-  
+
 - **Request Parameters**
 - `id` (String): Unique identifier of the post to which the comment will be added.
 
