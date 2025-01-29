@@ -1,7 +1,6 @@
 const express = require("express");
 const chalk = require("chalk");
 require("dotenv").config();
-const corsMiddleware = require("./middlewares/cors");
 const morganLogger = require("./logger/loggers/morganLogger");
 const connectToDb = require("./DB/dbServise");
 const router = require("./router/router");
@@ -11,6 +10,13 @@ const { handleSocketConnection, corsSettings } = require("./sockets/services/soc
 const app = express();
 const PORT = 8181;
 const path = require("path");
+// const corsMiddleware = require("./middlewares/cors");
+const corsMiddleware = cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: "*",
+});
+
 app.use(corsMiddleware);
 
 const server = app.listen(PORT, () => {
