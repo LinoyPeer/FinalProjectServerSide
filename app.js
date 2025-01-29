@@ -54,6 +54,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(corsMiddleware);
 app.use(morganLogger);
 app.use(router);
+app.options('*', corsMiddleware);
+
 
 app.use((err, req, res, next) => {
     console.log(err);
