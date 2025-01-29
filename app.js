@@ -6,6 +6,7 @@ const connectToDb = require("./DB/dbServise");
 const router = require("./router/router");
 const socketIo = require("socket.io");
 const { handleSocketConnection, corsSettings } = require("./sockets/services/socketService");
+const cors = require("cors");
 
 const app = express();
 const PORT = 8181;
