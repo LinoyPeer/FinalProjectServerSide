@@ -8,9 +8,6 @@ const User = require('../models/mongodb/User');
 const router = express.Router();
 router.post('/', upload.single('image'), async (req, res) => {
     try {
-        console.log('req.body:', req.body);
-        console.log('req.file:', req.file);
-
         const newUser = { ...req.body };
 
         const existingUser = await User.findOne({ email: newUser.email });
@@ -117,6 +114,8 @@ router.put('/:id', auth, upload.single('image'), async (req, res) => {
                 path: req.file.path,
                 alt: 'Profile Picture'
             };
+            console.log(req.protocol, "fefesf");
+
             updatedData.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
         }
 
