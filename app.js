@@ -11,6 +11,7 @@ const { handleSocketConnection, corsSettings } = require("./sockets/services/soc
 const app = express();
 const PORT = 8181;
 const path = require("path");
+app.use(corsMiddleware);
 
 const server = app.listen(PORT, () => {
     console.log(chalk.yellow(`Listening to port: ${PORT}`));
@@ -51,7 +52,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(corsMiddleware);
 app.use(morganLogger);
 app.use(router);
 
