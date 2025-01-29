@@ -9,8 +9,7 @@ const corsMiddleware = cors({
         "http://localhost:5174",
         "http://127.0.0.1:5174",
         "http://localhost:8181",
-        "https://finalprojectclientside.onrender.com/*",
-        "https://finalprojectclientside.onrender.com/"
+        "https://finalprojectclientside.onrender.com1",
     ],
 });
 
