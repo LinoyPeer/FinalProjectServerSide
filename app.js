@@ -14,7 +14,7 @@ const path = require("path");
 // const corsMiddleware = require("./middlewares/cors");
 const corsMiddleware = cors({
     origin: "https://finalprojectclientside.onrender.com", // הדומיין של הלקוח
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: "*",
     credentials: true, // אם את שולחת עוגיות או טוקנים
 });
