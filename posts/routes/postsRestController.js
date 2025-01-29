@@ -13,9 +13,6 @@ const router = express.Router();
 
 router.post('/', auth, upload.single('image'), async (req, res) => {
     try {
-        console.log('Request body:', req.body);
-        console.log('Request file:', req.file);
-
         const user_id = req.user._id;
         const userInfo = req.user;
         if (!userInfo || !userInfo.isAdmin && !userInfo.isBusiness) {
