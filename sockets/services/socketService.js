@@ -70,7 +70,7 @@ const handleSendMessage = async (socket, data, chatNamespace) => {
 const corsSettings = {
     origin: "https://finalprojectclientside.onrender.com",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: "*",
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     credentials: true,
 };
 
