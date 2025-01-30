@@ -12,14 +12,15 @@ const app = express();
 const PORT = 8181;
 const path = require("path");
 // const corsMiddleware = require("./middlewares/cors");
-const corsMiddleware = cors({
-    origin: "https://finalprojectclientside.onrender.com/",
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: "*",
-    credentials: true, // אם את שולחת עוגיות או טוקנים
-});
+// const corsMiddleware = cors({
+//     origin: "https://finalprojectclientside.onrender.com/",
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//     allowedHeaders: "*",
+//     credentials: true, // אם את שולחת עוגיות או טוקנים
+// });
 
-app.use(corsMiddleware);
+// app.use(corsMiddleware);
+app.use(cors())
 
 const server = app.listen(PORT, () => {
     console.log(chalk.yellow(`Listening to port: ${PORT}`));
