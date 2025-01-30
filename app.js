@@ -12,6 +12,17 @@ const app = express();
 const PORT = 8181;
 const path = require("path");
 // const corsMiddleware = require("./middlewares/cors");
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "https://finalprojectclientside.onrender.com");  // הדומיין של הלקוח
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");  // אם אתה שולח עוגיות או טוקנים
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+    next();
+});
+
 const corsMiddleware = cors({
     origin: "https://finalprojectclientside.onrender.com", // הדומיין של הלקוח
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
