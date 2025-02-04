@@ -116,7 +116,8 @@ router.put('/:id', auth, upload.single('image'), async (req, res) => {
             };
             console.log(req.protocol, "fefesf");
 
-            updatedData.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+            // updatedData.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+            updatedData.image.path = req.file.path;;
         }
 
         const updatedUser = await editUser(id, updatedData);
