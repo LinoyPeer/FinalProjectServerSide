@@ -20,7 +20,8 @@ router.post('/', upload.single('image'), async (req, res) => {
                 path: req.file.path,
                 alt: 'Profile Picture'
             };
-            newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+            // newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+            newUser.image.path = req.file.path;
         }
 
         const signin = await registerUser(newUser);
