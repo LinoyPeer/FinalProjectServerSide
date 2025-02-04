@@ -20,8 +20,8 @@ router.post('/', upload.single('image'), async (req, res) => {
                 path: req.file.path,
                 alt: 'Profile Picture'
             };
-            // newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-            newUser.image.path = req.file.path;
+            newUser.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+            // newUser.image.path = req.file.path;
         }
 
         const signin = await registerUser(newUser);
@@ -115,10 +115,8 @@ router.put('/:id', auth, upload.single('image'), async (req, res) => {
                 path: req.file.path,
                 alt: 'Profile Picture'
             };
-            console.log(req.protocol, "fefesf");
-
-            // updatedData.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-            updatedData.image.path = req.file.path;;
+            updatedData.image.path = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+            // updatedData.image.path = req.file.path;;
         }
 
         const updatedUser = await editUser(id, updatedData);

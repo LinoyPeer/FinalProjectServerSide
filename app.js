@@ -59,5 +59,5 @@ app.use(router);
 
 app.use((err, req, res, next) => {
     console.log(err);
-    res.status(500).send(chalk.red("Internal error of the server"));
+    res.status(500).send(chalk.red("Internal error of the server!"));
 });

@@ -1,31 +1,25 @@
 const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('cloudinary').v2;
-require('dotenv').config();
+const path = require('path');
+const fs = require('fs');
 
-// הגדרת Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+const uploadDir = path.join(__dirname, '../public/uploads');
 
-console.log('Cloudinary Config:', {
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: 'uploads', // שם התיקייה ב-Cloudinary
-        allowed_formats: ['jpg', 'png', 'jpeg', 'gif'], // פורמטים מותרים
-        public_id: (req, file) => Date.now() + '-' + file.originalname, // שם ייחודי
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
     },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + path.extname(file.originalname);
+        cb(null, uniqueSuffix);
+    }
 });
 
-const upload = multer({ storage });
+const upload = multer({
+    storage: storage,
+});
 
 module.exports = upload;

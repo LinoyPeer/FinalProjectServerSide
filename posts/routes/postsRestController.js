@@ -35,8 +35,8 @@ router.post('/', auth, upload.single('image'), async (req, res) => {
         console.log('Generated chat_id:', chat_id);
         console.log('Generated bizNumber:', bizNumber);
 
-        // const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-        const imageUrl = req.file.path; // כתובת ה-URL הישירה מ-Cloudinary
+        const imageUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        // const imageUrl = req.file.path; 
 
         console.log("imageUrl: ", imageUrl);
 
